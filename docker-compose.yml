@@ -40,9 +40,10 @@ services:
       - ./site-d-ftp:/home/ftpuser/
     environment:
       PUBLICHOST: 192.168.17.133
-      FTP_USER_NAME: anonymous
-      FTP_USER_PASS: anonymous
+      # 停用所有安全機制
+      TLS: 0
+      # 允許匿名登入
+      FTP_ANONYMOUS_ARE_ALLOWED: "yes"
+      # 對應到內建的 ftp 使用者目錄
       FTP_USER_HOME: /home/ftpuser
-      # -e: 僅限匿名, -j: 自動建立家目錄, -Y 0: 停用 TLS 以避免 421 錯誤
-      ADDED_FLAGS: "-d -c 5 -C 5 -e -j -Y 0"
     restart: always
