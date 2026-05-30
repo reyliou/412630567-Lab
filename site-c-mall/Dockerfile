@@ -17,8 +17,8 @@ COPY . .
 RUN mv /app/flag.sh /root/flag.sh && \
     chmod +x /root/flag.sh
 
-# 設定 Sudo 權限：允許 neo-user 免密碼執行 flag.sh
-RUN echo "neo-user ALL=(ALL) NOPASSWD: /root/flag.sh" >> /etc/sudoers
+# 設定 Sudo 權限：允許 neo-user 免密碼執行 flag.sh 與讀取 root_flag
+RUN echo "neo-user ALL=(ALL) NOPASSWD: /root/flag.sh, /bin/cat /root/root_flag.txt" >> /etc/sudoers
 
 # 確保 /app 目錄權限
 RUN mkdir -p /app/config && chown -R neo-user:neo-user /app
