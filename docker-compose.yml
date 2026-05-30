@@ -29,6 +29,8 @@ services:
 
   neo-mall:
     build: ./site-c-mall
+    ports:
+      - "8081:8080"
     restart: always
 
   neo-ftp:
