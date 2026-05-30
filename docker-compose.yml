@@ -40,10 +40,11 @@ services:
       - ./site-d-ftp:/home/ftpuser/
     environment:
       PUBLICHOST: 192.168.17.133
-      # 停用所有安全機制
-      TLS: 0
-      # 允許匿名登入
       FTP_ANONYMOUS_ARE_ALLOWED: "yes"
-      # 對應到內建的 ftp 使用者目錄
       FTP_USER_HOME: /home/ftpuser
+      # -H: 不要進行反向 DNS 查詢 (避免延遲與 421)
+      # -p: 指定被動模式埠範圍
+      # -Y 0: 徹底停用 TLS
+      # -c 30: 最大連線數設為 30
+      ADDED_FLAGS: "-d -H -p 30000:30009 -Y 0 -c 30 -C 10"
     restart: always
