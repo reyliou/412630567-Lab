@@ -5,13 +5,19 @@
 
 ## 2. 漏洞鏈 (Attack Chain)
 
-### 第一階段：身分突破 (Initial Foothold)
-*   **漏洞類型**：CWE-521 (弱口令)
-*   **動作**：利用常見測試帳號進行登入。
-*   **憑據**：`guest / guest123`。
-*   **目的**：獲取基本的系統互動權限，以便存取產品評論功能。
+### 第一階段：BOLA 資訊外洩 (Broken Object Level Authorization - CWE-639)
+*   **漏洞類型**：CWE-639 (失效的物件層級授權)
+*   **動作**：嘗試存取前端介面未公開的產品 ID (`/api/products/0`)。
+*   **發現內容**：獲取隱藏產品描述：「【內部組件】此模組僅供開發團隊進行壓力測試。如遇到連線問題，請開發人員前往 /system-status/ 檢查節點健康度。」
+*   **目的**：挖掘系統隱藏路徑與開發者預留的監控接口。
 
-### 第二階段：SSTI 模板注入 (Server-Side Template Injection - CWE-1336)
+### 第二階段：身分突破 (Initial Foothold)
+*   **漏洞類型**：CWE-521 (弱口令)
+*   **動作**：利用獲取的資訊與常見測試帳號進行登入。
+*   **憑據**：`admin / password123`。
+*   **目的**：獲取基本的系統互動權限，以便存取產品評論功能以進行進一步攻擊。
+
+### 第三階段：SSTI 模板注入 (Server-Side Template Injection - CWE-1336)
 *   **位置**：產品詳情頁面 (`/product/{id}`) 的「產品評論」系統。
 *   **漏洞原理**：伺服器使用 Jinja2 引擎來處理評論預覽。開發者為了提供動態排版功能，不安全地將用戶輸入直接傳入模板引擎的渲染函數：`jinja2.Template(user_input).render(config=app_config)`。
 *   **測試 Payload**：`{{ 7 * 7 }}` -> 伺服器即時回傳 `49`，確認漏洞存在。
