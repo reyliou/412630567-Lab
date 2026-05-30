@@ -40,8 +40,8 @@ services:
       - ./site-d-ftp:/home/vsftpd/anonymous/pub
       - ./vsftpd.conf:/etc/vsftpd/vsftpd.conf
     environment:
-      - LOG_STDOUT=YES
       - PASV_ADDRESS=192.168.17.133
       - PASV_MIN_PORT=30000
       - PASV_MAX_PORT=30009
+      - LOG_STDOUT=YES
     restart: always
