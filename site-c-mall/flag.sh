@@ -12,10 +12,12 @@ eval "STUDENT_INPUT=$STUDENT_ID"
 
 echo "正在為學號 $STUDENT_INPUT 生成安全識別碼..."
 
-# 計算 Hash
-HASH=$(echo -n "NEO_$STUDENT_INPUT" | md5sum | cut -d" " -f1)
-USER_FLAG="FLAG{$HASH}"
-ROOT_FLAG="ROOT_FLAG{$HASH}"
+# 為 User 和 Root 生成不同的雜湊值
+USER_HASH=$(echo -n "USER_$STUDENT_INPUT" | md5sum | cut -d" " -f1)
+ROOT_HASH=$(echo -n "ROOT_$STUDENT_INPUT" | md5sum | cut -d" " -f1)
+
+USER_FLAG="FLAG{$USER_HASH}"
+ROOT_FLAG="ROOT_FLAG{$ROOT_HASH}"
 
 # 寫入 Flag 檔案
 echo -n "$USER_FLAG" > /home/neo-user/user_flag.txt
