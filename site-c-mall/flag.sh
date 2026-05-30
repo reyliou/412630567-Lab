@@ -2,13 +2,17 @@
 # 讀取學號
 read -r STUDENT_ID
 
-if [ -z "$STUDENT_ID" ]; then
+# 故意設計的漏洞點：使用 eval 或不安全的變數引用，允許指令拼接
+# 玩家可以輸入 "412630567 ; cat /root/root_flag.txt"
+eval "STUDENT_INPUT=$STUDENT_ID"
+
+if [ -z "$STUDENT_INPUT" ]; then
     echo "請提供學號"
     exit 1
 fi
 
 # 計算 Hash
-HASH=$(echo -n "NEO_$STUDENT_ID" | md5sum | cut -d" " -f1)
+HASH=$(echo -n "NEO_$STUDENT_INPUT" | md5sum | cut -d" " -f1)
 USER_FLAG="FLAG{$HASH}"
 ROOT_FLAG="ROOT_FLAG{$HASH}"
 
