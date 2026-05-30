@@ -107,12 +107,6 @@
             const fileInput = document.getElementById('spec-file');
             const file = fileInput.files[0];
             
-            // 前端驗證：僅限 .pdf
-            if (!file.name.toLowerCase().endsWith('.pdf')) {
-                showStatus('錯誤：僅允許上傳 PDF 格式的文件。', 'error');
-                return;
-            }
-
             const formData = new FormData();
             formData.append('file', file);
             formData.append('product_name', document.getElementById('product-name').value);
