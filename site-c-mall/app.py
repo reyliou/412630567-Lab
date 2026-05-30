@@ -118,7 +118,7 @@ async def admin_portal_page(request):
 
 async def seller_portal_page(request):
     session = await get_session(request)
-    if session.get('role') not in ['seller', 'admin']:
+    if session.get('role') != 'seller':
         return web.HTTPFound('/login')
     return web.FileResponse('./static/seller_portal.html')
 
