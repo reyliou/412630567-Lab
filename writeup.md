@@ -31,13 +31,7 @@
 ### 第四階段：不安全的文件上傳 (Insecure File Upload - CWE-434)
 *   **位置**：`/seller-portal` (賣家管理中心) 的手冊上傳功能。
 *   **繞過手法**：使用 Burp Suite 攔截上傳請求，將檔案的 `Content-Type` 偽造為 `application/pdf`。
-*   **關鍵情報**：成功上傳後，後端 API 為了方便開發者調試，在回應中洩漏了文件的**絕對路徑**：`/app/static/uploads/product.pt`。
-
-### 第四.五階段：FTP 敏感資訊外洩 (FTP Sensitive Data Exposure)
-*   **發現**：掃描發現內部測試環境開啟了匿名 FTP 服務 (`port 21`)。
-*   **動作**：利用匿名登入 (`anonymous/anonymous`) 存取 `backup_logs` 資料夾。
-*   **發現內容**：下載並閱讀 `server_migration.bak`，其中記錄了：「2024年系統安全審計：主要 flag 已移至 /app/config/secret_flag.txt，以避免透過通用靜態路由意外流出。請勿對此資料夾開放權限。」
-*   **目的**：精確鎖定 Flag 的位置與檔名，避免在大規模檔案系統中盲目嘗試。
+*   **關鍵情報**：成功上傳後，後端 API 為了方便開發者調試，在回應中洩漏了文件的**絕對路徑**：`/app/static/uploads/product.pt`。同時，開發者在代碼註釋中提到：「所有敏感 flag 已移至 `/app/config/secret_flag.txt` 以確保安全。」
 
 ### 第五階段：路徑穿越致命打擊 (Path Traversal - CVE-2024-23334)
 *   **核心漏洞**：`aiohttp 3.9.1` 在 `follow_symlinks=True` 的配置下存在路徑遍歷。

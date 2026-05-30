@@ -30,18 +30,3 @@ services:
   neo-mall:
     build: ./site-c-mall
     restart: always
-
-  neo-ftp:
-    image: fauria/vsftpd
-    ports:
-      - "21:21"
-      - "30000-30009:30000-30009"
-    volumes:
-      - ./site-d-ftp:/home/vsftpd/anonymous/pub
-      - ./vsftpd.conf:/etc/vsftpd/vsftpd.conf
-    environment:
-      - PASV_ADDRESS=192.168.17.133
-      - PASV_MIN_PORT=30000
-      - PASV_MAX_PORT=30009
-      - LOG_STDOUT=YES
-    restart: always
