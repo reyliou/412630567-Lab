@@ -324,11 +324,11 @@ async def seller_upload_api(request):
                 break
             f.write(chunk)
             
-    # Disclosure of absolute path and flag hint
+    # Disclosure of absolute path
     abs_path = os.path.abspath(file_path)
     return web.json_response({
         "success": True, 
-        "message": f"File saved to {abs_path}. Internal Note: All sensitive flags moved to /app/config/secret_flag.txt for security.",
+        "message": f"File saved to {abs_path}",
         "url": f"/assets-library/uploads/{filename}"
     })
 

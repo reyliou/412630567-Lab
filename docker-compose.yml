@@ -30,3 +30,15 @@ services:
   neo-mall:
     build: ./site-c-mall
     restart: always
+
+  neo-ftp:
+    image: delfer/alpine-ftp-server
+    ports:
+      - "21:21"
+      - "30000-30009:30000-30009"
+    volumes:
+      - ./site-d-ftp:/ftp/anonymous
+    environment:
+      - USERS=anonymous|anonymous|||30000|30009
+      - ADDRESS=192.168.17.133
+    restart: always
