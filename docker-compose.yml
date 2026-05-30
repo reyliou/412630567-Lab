@@ -43,6 +43,6 @@ services:
       FTP_USER_NAME: anonymous
       FTP_USER_PASS: anonymous
       FTP_USER_HOME: /home/ftpuser
-      # 修正：將 -E 改為 -e 以允許匿名登入
-      ADDED_FLAGS: "-d -c 5 -C 5 -e -j -R"
+      # -e: 僅限匿名, -j: 自動建立家目錄, -Y 0: 停用 TLS 以避免 421 錯誤
+      ADDED_FLAGS: "-d -c 5 -C 5 -e -j -Y 0"
     restart: always
