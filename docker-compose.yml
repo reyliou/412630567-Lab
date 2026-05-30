@@ -39,6 +39,8 @@ services:
     volumes:
       - ./site-d-ftp:/ftp/anonymous
     environment:
-      - USERS=anonymous|anonymous|||30000|30009
+      - USERS=anonymous|anonymous
       - ADDRESS=192.168.17.133
+      - MIN_PORT=30000
+      - MAX_PORT=30009
     restart: always
