@@ -38,7 +38,7 @@ services:
       - "30000-30009:30000-30009"
     volumes:
       - ./site-d-ftp:/home/vsftpd/anonymous/pub
-      - ./vsftpd.conf:/etc/vsftpd/vsftpd.conf:ro
+      - ./vsftpd.conf:/etc/vsftpd/vsftpd.conf
     environment:
       - LOG_STDOUT=YES
       - PASV_ADDRESS=192.168.17.133
