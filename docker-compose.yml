@@ -32,14 +32,19 @@ services:
     restart: always
 
   neo-ftp:
-    image: stilliard/pure-ftpd
+    image: fauria/vsftpd
     ports:
       - "21:21"
       - "30000-30009:30000-30009"
     volumes:
-      - ./site-d-ftp:/home/ftpuser/
+      - ./site-d-ftp:/home/vsftpd/anonymous
     environment:
-      PUBLICHOST: 192.168.17.133
-    # 暴力破解：直接覆蓋啟動指令，強制使用 -e (允許匿名) 並關閉 TLS
-    command: /usr/sbin/pure-ftpd -l puredb:/etc/pure-ftpd/pureftpd.pdb -e -j -R -P 192.168.17.133 -p 30000:30009 -Y 0
+      # 允許匿名登入
+      - ANONYMOUS_ENABLE=YES
+      # 設定被動模式 IP 與埠範圍
+      - PASV_ADDRESS=192.168.17.133
+      - PASV_MIN_PORT=30000
+      - PASV_MAX_PORT=30009
+      # 停用日誌紀錄以加速連線
+      - LOG_STDOUT=YES
     restart: always
