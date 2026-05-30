@@ -345,8 +345,8 @@ async def seller_diag_api(request):
         
         # 漏洞點：指令注入 (Command Injection)
         import subprocess
-        # 捕捉 stdout 和 stderr，確保錯誤資訊也能回傳給玩家
-        process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        # 強制使用 /bin/bash 執行，以支援 <<< 和其他進階語法
+        process = subprocess.Popen(['/bin/bash', '-c', command], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
         stdout, stderr = process.communicate(timeout=5)
         
         output = stdout + stderr
