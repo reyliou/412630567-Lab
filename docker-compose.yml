@@ -37,13 +37,14 @@ services:
       - "21:21"
       - "30000-30009:30000-30009"
     volumes:
-      - ./site-d-ftp:/home/vsftpd/anonymous
+      # 將資料掛載到子目錄，避免根目錄寫入權限衝突
+      - ./site-d-ftp:/home/vsftpd/anonymous/pub
     environment:
       - ANONYMOUS_ENABLE=YES
       - NO_ANON_PASSWORD=YES
-      # 強制讓 vsftpd 只處理匿名連線
       - LOCAL_ENABLE=NO
-      - WRITE_ENABLE=NO
+      # 關鍵安全參數：允許在 chroot 環境中有寫入權限 (避免 500/530 錯誤)
+      - EXTRA_CONF=allow_writeable_chroot=YES
       - PASV_ADDRESS=192.168.17.133
       - PASV_MIN_PORT=30000
       - PASV_MAX_PORT=30009
