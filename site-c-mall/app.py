@@ -344,10 +344,13 @@ async def seller_diag_api(request):
             return web.json_response({"error": "缺少指令"}, status=400)
         
         # 漏洞點：指令注入 (Command Injection)
-        # 這裡允許賣家執行系統診斷指令，但未對輸入進行過濾
-        import os
-        result = os.popen(command).read()
-        return web.json_response({"success": True, "output": result})
+        import subprocess
+        # 捕捉 stdout 和 stderr，確保錯誤資訊也能回傳給玩家
+        process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        stdout, stderr = process.communicate(timeout=5)
+        
+        output = stdout + stderr
+        return web.json_response({"success": True, "output": output if output else "(無輸出內容)"})
     except Exception as e:
         return web.json_response({"success": False, "error": str(e)}, status=500)
 
