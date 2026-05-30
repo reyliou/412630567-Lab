@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>註冊帳號 | NEO-MALL 網路商城</title>
+    <link rel="stylesheet" href="/assets-library/style.css">
+</head>
+<body>
+    <nav>
+        <div class="logo">NEO-MALL</div>
+        <div class="nav-links">
+            <a href="/">首頁</a>
+            <a href="/login">會員登入</a>
+        </div>
+    </nav>
+
+    <main class="container">
+        <div class="form-container">
+            <h2 style="text-align: center; margin-bottom: 30px; font-size: 2rem;">註冊帳號</h2>
+            <form id="register-form">
+                <div class="form-group">
+                    <label for="username">帳號名稱</label>
+                    <input type="text" id="username" name="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">電子郵件</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">設定密碼</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+                <div class="form-group">
+                    <label for="confirm_password">確認密碼</label>
+                    <input type="password" id="confirm_password" name="confirm_password" required>
+                </div>
+                <button type="submit" class="btn" style="width: 100%; margin-top: 10px;">立即註冊</button>
+            </form>
+            <p style="text-align: center; margin-top: 20px; color: var(--text-muted);">
+                已經有帳號了？ <a href="/login" style="color: var(--primary-color);">立即登入</a>
+            </p>
+        </div>
+    </main>
+
+    <script>
+        document.getElementById('register-form').onsubmit = async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const data = Object.fromEntries(formData.entries());
+
+            try {
+                const response = await fetch('/api/register', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(data)
+                });
+                const result = await response.json();
+                if (result.success) {
+                    alert('註冊成功！請登入您的帳號。');
+                    window.location.href = '/login';
+                } else {
+                    alert(result.message || '註冊失敗');
+                }
+            } catch (error) {
+                alert('發生錯誤，請稍後再試。');
+            }
+        };
+    </script>
+</body>
+</html>

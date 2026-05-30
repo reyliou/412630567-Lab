@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>會員中心 | NEO-MALL 網路商城</title>
+    <link rel="stylesheet" href="/assets-library/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <nav>
+        <div class="logo">NEO-MALL</div>
+        <div class="search-bar">
+            <input type="text" placeholder="搜尋專業科技產品...">
+            <button><i class="fas fa-search"></i></button>
+        </div>
+        <div class="nav-links">
+            <a href="/">首頁</a>
+            <a href="/contact">聯絡我們</a>
+            <span id="user-nav">
+                <!-- 由 JavaScript 填充 -->
+            </span>
+            <a href="/cart" class="cart-icon">
+                <i class="fas fa-shopping-cart"></i>
+                <span class="cart-badge" id="cart-count">0</span>
+            </a>
+        </div>
+    </nav>
+
+    <main class="container">
+        <h2 style="margin-bottom: 2.5rem; font-size: 2rem; font-weight: 800;">會員中心</h2>
+        <div class="dashboard-grid">
+            <aside class="sidebar">
+                <a href="#" class="sidebar-link active"><i class="fas fa-user"></i> 個人資料</a>
+                <a href="#" class="sidebar-link"><i class="fas fa-box"></i> 我的訂單</a>
+                <a href="#" class="sidebar-link"><i class="fas fa-heart"></i> 收藏清單</a>
+                <a href="#" class="sidebar-link"><i class="fas fa-cog"></i> 帳號設定</a>
+                <div id="seller-link-container"></div>
+                <a href="#" onclick="logout()" class="sidebar-link" style="color: #ff4b2b; margin-top: 20px;"><i class="fas fa-sign-out-alt"></i> 登出帳號</a>
+            </aside>
+            <section class="content">
+                <div class="product-card" style="margin-bottom: 30px;">
+                    <h3 style="margin-bottom: 20px;">歡迎回來，<span id="welcome-user">會員</span></h3>
+                    <p>您可以在這裡管理您的個人資料、查看訂單狀態以及更新您的帳號設定。</p>
+                </div>
+                <div id="seller-status-card"></div>
+                <div class="product-card">
+                    <h4 style="margin-bottom: 20px; color: white;">最近的動態</h4>
+                    <p style="color: var(--text-muted);">目前尚無最新動態。</p>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <footer>
+        <p style="text-align: center; color: var(--text-muted); font-size: 0.85rem;">
+            &copy; 2024 NEO-MALL 企業。保留所有權利。
+        </p>
+    </footer>
+
+    <script>
+        async function checkUser() {
+            try {
+                const response = await fetch('/api/user/me');
+                if (response.ok) {
+                    const user = await response.json();
+                    document.getElementById('user-nav').innerHTML = `
+                        <a href="/dashboard">會員中心 (${user.username})</a>
+                        <a href="#" onclick="logout()">登出</a>
+                    `;
+                    document.getElementById('welcome-user').innerText = user.username;
+                    
+                    if (user.role === 'seller' || user.role === 'admin') {
+                        document.getElementById('seller-link-container').innerHTML = `
+                            <a href="/seller-portal" class="sidebar-link" style="background: rgba(0, 123, 255, 0.1); color: var(--primary-color); border: 1px solid var(--primary-color);">
+                                <i class="fas fa-store"></i> 賣家管理中心
+                            </a>
+                        `;
+                        document.getElementById('seller-status-card').innerHTML = `
+                            <div class="product-card" style="margin-bottom: 30px; border-left: 4px solid var(--primary-color);">
+                                <h4 style="color: var(--primary-color); margin-bottom: 10px;">供應商狀態：已認證</h4>
+                                <p>您的帳號具備供應商權限，可以進行產品上架與報表查詢。</p>
+                                <a href="/seller-portal" class="btn" style="margin-top: 15px;">前往賣家中心</a>
+                            </div>
+                        `;
+                    }
+                    
+                    updateCartCount();
+                } else {
+                    window.location.href = '/login';
+                }
+            } catch (error) {
+                window.location.href = '/login';
+            }
+        }
+
+        async function logout() {
+            await fetch('/api/logout', {method: 'POST'});
+            window.location.href = '/';
+        }
+
+        async function updateCartCount() {
+            try {
+                const response = await fetch('/api/cart');
+                if (response.ok) {
+                    const cart = await response.json();
+                    document.getElementById('cart-count').innerText = cart.length;
+                }
+            } catch (error) {}
+        }
+
+        window.onload = checkUser;
+    </script>
+</body>
+</html>

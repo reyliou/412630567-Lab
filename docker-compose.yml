@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  nginx-gateway:
+    image: openresty/openresty:alpine
+    ports:
+      - "8080:80"
+    volumes:
+      - ./nginx-gateway/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - neo-mall
+      - neo-status
+      - neo-dev
+
+  neo-status:
+    image: nginx:alpine
+    volumes:
+      - ./site-a-status:/usr/share/nginx/html:ro
+      - ./site-a-status/nginx.conf:/etc/nginx/nginx.conf:ro
+
+  neo-dev:
+    image: nginx:alpine
+    volumes:
+      - ./site-b-dev:/usr/share/nginx/html:ro
+      - ./site-b-dev/nginx.conf:/etc/nginx/nginx.conf:ro
+
+  neo-mall:
+    build: ./site-c-mall
+    restart: always
+
+  neo-ftp:
+    image: stilliard/pure-ftpd
+    ports:
+      - "21:21"
+      - "30000-30009:30000-30009"
+    volumes:
+      - ./site-d-ftp:/home/ftpuser/
+    environment:
+      PUBLICHOST: localhost
+      FTP_USER_NAME: anonymous
+      FTP_USER_PASS: anonymous
+      FTP_USER_HOME: /home/ftpuser

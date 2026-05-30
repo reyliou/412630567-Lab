@@ -1,0 +1,23 @@
+[
+    {
+        "id": 0,
+        "username": "admin",
+        "password": "NeoAdmin7788",
+        "role": "admin",
+        "email": "admin@neo-mall.tw"
+    },
+    {
+        "id": 1,
+        "username": "guest",
+        "password": "guest123",
+        "role": "user",
+        "email": "guest@neo-mall.tw"
+    },
+    {
+        "id": 2,
+        "username": "neo_vendor",
+        "password": "VendorPass8899",
+        "role": "seller",
+        "email": "vendor@neo-mall.tw"
+    }
+]

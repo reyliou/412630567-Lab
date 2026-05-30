@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>購物車 | NEO-MALL 網路商城</title>
+    <link rel="stylesheet" href="/assets-library/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <nav>
+        <div class="logo">NEO-MALL</div>
+        <div class="search-bar">
+            <input type="text" placeholder="搜尋專業科技產品...">
+            <button><i class="fas fa-search"></i></button>
+        </div>
+        <div class="nav-links">
+            <a href="/">首頁</a>
+            <a href="/contact">聯絡我們</a>
+            <span id="user-nav">
+                <a href="/login">會員登入</a>
+                <a href="/register">註冊帳號</a>
+            </span>
+            <a href="/cart" class="cart-icon">
+                <i class="fas fa-shopping-cart"></i>
+                <span class="cart-badge" id="cart-count">0</span>
+            </a>
+        </div>
+    </nav>
+
+    <main class="container">
+        <h2 style="margin-bottom: 2.5rem; font-size: 2rem; font-weight: 800;">您的購物車</h2>
+        <div id="cart-items" style="margin-bottom: 40px;">
+            <p>正在載入購物車內容...</p>
+        </div>
+        <div id="cart-summary" class="product-card" style="max-width: 400px; margin-left: auto; display: none;">
+            <h3 style="margin-bottom: 20px;">訂單摘要</h3>
+            <p id="total-price" class="price" style="font-size: 1.8rem; margin-bottom: 30px;">總計: 0 元</p>
+            <button class="btn" onclick="checkout()" style="width: 100%;">進行結帳</button>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4>關於 NEO-MALL</h4>
+                <p>自 2024 年以來，NEO-MALL 始終致力於為全球企業提供高品質的科技產品與專業的技術支援。</p>
+            </div>
+            <div class="footer-section">
+                <h4>客戶服務</h4>
+                <a href="/contact">聯絡我們</a>
+                <a href="/privacy">隱私權政策</a>
+                <a href="/terms">服務條款</a>
+            </div>
+        </div>
+        <p style="margin-top: 4rem; border-top: 1px solid var(--border-color); padding-top: 2rem; text-align: center; font-size: 0.85rem;">
+            &copy; 2024 NEO-MALL 企業。保留所有權利。
+        </p>
+    </footer>
+
+    <script>
+        async function checkUser() {
+            try {
+                const response = await fetch('/api/user/me');
+                if (response.ok) {
+                    const user = await response.json();
+                    document.getElementById('user-nav').innerHTML = `
+                        <a href="/dashboard">會員中心 (${user.username})</a>
+                        <a href="#" onclick="logout()">登出</a>
+                    `;
+                    loadCart();
+                } else {
+                    window.location.href = '/login';
+                }
+            } catch (error) {
+                window.location.href = '/login';
+            }
+        }
+
+        async function logout() {
+            await fetch('/api/logout', {method: 'POST'});
+            location.reload();
+        }
+
+        async function loadCart() {
+            try {
+                const response = await fetch('/api/cart');
+                const cart = await response.json();
+                const cartContainer = document.getElementById('cart-items');
+                
+                if (cart.length === 0) {
+                    cartContainer.innerHTML = '<p>您的購物車目前是空的。</p>';
+                    document.getElementById('cart-summary').style.display = 'none';
+                    document.getElementById('cart-count').innerText = '0';
+                    return;
+                }
+
+                document.getElementById('cart-count').innerText = cart.length;
+                cartContainer.innerHTML = '';
+                let total = 0;
+
+                cart.forEach(item => {
+                    const itemElement = document.createElement('div');
+                    itemElement.className = 'product-card';
+                    itemElement.style.flexDirection = 'row';
+                    itemElement.style.justifyContent = 'space-between';
+                    itemElement.style.alignItems = 'center';
+                    itemElement.style.marginBottom = '16px';
+                    itemElement.style.padding = '20px';
+                    
+                    itemElement.innerHTML = `
+                        <div>
+                            <h4 style="margin: 0; color: white;">${item.name}</h4>
+                            <p style="margin: 5px 0 0 0; font-size: 0.9rem;">${item.description}</p>
+                        </div>
+                        <div class="price" style="margin-bottom: 0;">${item.price}</div>
+                    `;
+                    cartContainer.appendChild(itemElement);
+                    
+                    // 簡單解析價格並累加
+                    const priceValue = parseInt(item.price.replace(/[^0-9]/g, ''));
+                    total += priceValue;
+                });
+
+                document.getElementById('total-price').innerText = `總計: ${total.toLocaleString()} 元`;
+                document.getElementById('cart-summary').style.display = 'block';
+            } catch (error) {
+                console.error('載入購物車失敗:', error);
+            }
+        }
+
+        async function checkout() {
+            try {
+                const response = await fetch('/api/checkout', {method: 'POST'});
+                const result = await response.json();
+                if (result.success) {
+                    alert('感謝您的訂購！訂單已成功送出。');
+                    window.location.href = '/dashboard';
+                }
+            } catch (error) {
+                alert('結帳過程發生錯誤，請稍後再試。');
+            }
+        }
+
+        window.onload = checkUser;
+    </script>
+</body>
+</html>

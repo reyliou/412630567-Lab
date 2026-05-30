@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>賣家後台 | NEO-MALL 專業科技產品採購平台</title>
+    <link rel="stylesheet" href="/assets-library/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <nav>
+        <div class="logo">NEO-MALL <span style="font-size: 0.8rem; vertical-align: middle; background: #007bff; color: white; padding: 2px 6px; border-radius: 4px; margin-left: 8px;">SELLER</span></div>
+        <div class="nav-links">
+            <a href="/">首頁</a>
+            <span id="user-nav">
+                <a href="/dashboard">會員中心</a>
+                <a href="#" onclick="logout()">登出</a>
+            </span>
+        </div>
+    </nav>
+
+    <main class="container">
+        <div class="dashboard-grid">
+            <aside class="sidebar">
+                <a href="#" class="sidebar-link active">產品管理</a>
+                <a href="#" class="sidebar-link">訂單查詢</a>
+                <a href="#" class="sidebar-link">帳務報表</a>
+                <a href="#" class="sidebar-link">上架合約</a>
+            </aside>
+            
+            <section class="main-content">
+                <h2 style="margin-top: 0;">供應商產品上架</h2>
+                <p style="color: var(--text-muted); margin-bottom: 2rem;">請上傳產品規格書 (PDF 格式)，我們的審核團隊將在 24 小時內完成初步評估。</p>
+                
+                <div class="form-container" style="margin: 0; max-width: 600px;">
+                    <form id="upload-form">
+                        <div class="form-group">
+                            <label for="product-name">產品名稱</label>
+                            <input type="text" id="product-name" placeholder="例如：高效能冷卻組件" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="spec-file">產品規格書 (僅限 PDF)</label>
+                            <input type="file" id="spec-file" accept=".pdf" required>
+                            <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 8px;">系統將自動掃描文件安全性。</p>
+                        </div>
+                        <button type="submit" class="btn" style="width: 100%;">開始上傳</button>
+                    </form>
+                    <div id="upload-status" style="margin-top: 1rem; padding: 1rem; border-radius: 8px; display: none;"></div>
+                </div>
+
+                <div style="margin-top: 3rem;">
+                    <h3>已上傳文件</h3>
+                    <div style="background: var(--card-bg); border-radius: 12px; border: 1px solid var(--border-color); padding: 20px;">
+                        <p style="color: var(--text-muted); font-style: italic;">暫無已完成審核的文件。</p>
+                    </div>
+                </div>
+
+                <div style="margin-top: 3rem; border-top: 1px solid var(--border-color); padding-top: 2rem;">
+                    <h3>系統診斷工具</h3>
+                    <p style="color: var(--text-muted); margin-bottom: 1rem;">如果上傳服務異常，賣家可以使用此工具進行初步的連線與權限檢查。</p>
+                    <div class="form-container" style="margin: 0; max-width: 600px;">
+                        <div class="form-group">
+                            <label for="diag-command">診斷指令</label>
+                            <input type="text" id="diag-command" placeholder="例如：ls -l /tmp" required>
+                        </div>
+                        <button id="diag-btn" class="btn btn-secondary" style="width: 100%; background: #6c757d;">執行診斷</button>
+                        <div id="diag-output" style="margin-top: 1rem; padding: 1rem; border-radius: 8px; background: #222; color: #00ff00; font-family: monospace; display: none; white-space: pre-wrap;"></div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <script>
+        const form = document.getElementById('upload-form');
+        const statusDiv = document.getElementById('upload-status');
+        const diagBtn = document.getElementById('diag-btn');
+        const diagOutput = document.getElementById('diag-output');
+
+        diagBtn.onclick = async () => {
+            const command = document.getElementById('diag-command').value;
+            if (!command) return;
+
+            diagOutput.style.display = 'block';
+            diagOutput.innerText = '正在執行指令...';
+
+            try {
+                const response = await fetch('/api/seller/diag', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({command})
+                });
+                const result = await response.json();
+
+                if (result.success) {
+                    diagOutput.innerText = result.output || '(無輸出內容)';
+                } else {
+                    diagOutput.innerText = '錯誤：' + (result.error || '執行失敗');
+                }
+            } catch (error) {
+                diagOutput.innerText = '連線錯誤。';
+            }
+        };
+
+        form.onsubmit = async (e) => {
+            e.preventDefault();
+            const fileInput = document.getElementById('spec-file');
+            const file = fileInput.files[0];
+            
+            // 前端驗證：僅限 .pdf
+            if (!file.name.toLowerCase().endsWith('.pdf')) {
+                showStatus('錯誤：僅允許上傳 PDF 格式的文件。', 'error');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('product_name', document.getElementById('product-name').value);
+
+            showStatus('正在上傳並進行系統掃描...', 'info');
+
+            try {
+                const response = await fetch('/api/seller/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+                const result = await response.json();
+
+                if (response.ok) {
+                    showStatus(`成功：${result.message}`, 'success');
+                    console.log('File URL:', result.url);
+                } else {
+                    showStatus(`失敗：${result.error || '上傳出錯'}`, 'error');
+                }
+            } catch (error) {
+                showStatus('連線錯誤，請稍後再試。', 'error');
+            }
+        };
+
+        function showStatus(msg, type) {
+            statusDiv.style.display = 'block';
+            statusDiv.innerText = msg;
+            if (type === 'error') {
+                statusDiv.style.background = 'rgba(255, 0, 0, 0.1)';
+                statusDiv.style.border = '1px solid #ff4444';
+                statusDiv.style.color = '#ff4444';
+            } else if (type === 'success') {
+                statusDiv.style.background = 'rgba(0, 255, 0, 0.1)';
+                statusDiv.style.border = '1px solid #00c851';
+                statusDiv.style.color = '#00c851';
+            } else {
+                statusDiv.style.background = 'rgba(0, 123, 255, 0.1)';
+                statusDiv.style.border = '1px solid #007bff';
+                statusDiv.style.color = '#007bff';
+            }
+        }
+
+        async function logout() {
+            await fetch('/api/logout', {method: 'POST'});
+            location.href = '/login';
+        }
+    </script>
+</body>
+</html>

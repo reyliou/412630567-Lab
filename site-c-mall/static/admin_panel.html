@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>管理員後台 | NEO-MALL 網路商城</title>
+    <link rel="stylesheet" href="/assets-library/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <nav>
+        <div class="logo">NEO-MALL [ADMIN]</div>
+        <div class="nav-links">
+            <a href="/">首頁</a>
+            <a href="/dashboard">會員中心</a>
+            <a href="#" onclick="logout()">登出</a>
+        </div>
+    </nav>
+
+    <main class="container">
+        <div class="product-card" style="border: 2px solid #00ff99; box-shadow: 0 0 20px rgba(0, 255, 153, 0.3);">
+            <h2 style="color: #00ff99; margin-bottom: 20px;"><i class="fas fa-user-shield"></i> 系統最高權限控制面板</h2>
+            <div style="background: rgba(0, 0, 0, 0.5); padding: 20px; border-radius: 5px; margin-top: 20px;">
+                <h3 style="color: white; margin-bottom: 15px;">旗標 (Flag) 已解鎖：</h3>
+                <p style="font-family: 'Courier New', Courier, monospace; font-size: 1.2rem; color: #00ff99; letter-spacing: 1px;">
+                    FLAG{chaining_vulnerabilities_like_a_pro_2024}
+                </p>
+            </div>
+            <div style="margin-top: 30px;">
+                <p>當前身份：系統管理員 (Administrator)</p>
+                <p>存取等級：Level 5 - Overlord</p>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p style="text-align: center; color: var(--text-muted); font-size: 0.85rem;">
+            &copy; 2024 NEO-MALL 企業。系統安全性已由 AI 自動監控。
+        </p>
+    </footer>
+
+    <script>
+        async function logout() {
+            await fetch('/api/logout', {method: 'POST'});
+            window.location.href = '/';
+        }
+    </script>
+</body>
+</html>

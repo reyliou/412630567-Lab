@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>產品詳情 | NEO-MALL 網路商城</title>
+    <link rel="stylesheet" href="/assets-library/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <nav>
+        <div class="logo">NEO-MALL</div>
+        <div class="search-bar">
+            <input type="text" placeholder="搜尋專業科技產品...">
+            <button><i class="fas fa-search"></i></button>
+        </div>
+        <div class="nav-links">
+            <a href="/">首頁</a>
+            <span id="user-nav">
+                <a href="/login">會員登入</a>
+                <a href="/register">註冊帳號</a>
+            </span>
+            <a href="/cart" class="cart-icon">
+                <i class="fas fa-shopping-cart"></i>
+                <span class="cart-badge" id="cart-count">0</span>
+            </a>
+        </div>
+    </nav>
+
+    <main class="container">
+        <div id="product-detail" class="product-card" style="max-width: 800px; margin: 0 auto; padding: 40px;">
+            <p>正在載入產品資訊...</p>
+        </div>
+
+        <div class="product-card" style="max-width: 800px; margin: 40px auto; padding: 40px;">
+            <h3 style="font-size: 1.8rem; color: white; margin-bottom: 25px; border-bottom: 2px solid var(--primary-color); padding-bottom: 10px;">用戶評價</h3>
+            
+            <div id="reviews-list" style="margin-bottom: 40px;">
+                <p style="color: var(--text-muted);">正在載入評價...</p>
+            </div>
+
+            <div id="add-review-section" style="background: #252836; padding: 25px; border-radius: 12px; border: 1px solid var(--border-color);">
+                <h4 style="margin-bottom: 15px; color: white;">發表評價</h4>
+                <div id="review-form-container">
+                    <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 15px;">請登入後發表評價。</p>
+                    <a href="/login" class="btn btn-secondary" style="display: inline-block; text-decoration: none;">前往登入</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4>關於 NEO-MALL</h4>
+                <p>自 2024 年以來，NEO-MALL 始終致力於為全球企業提供高品質的科技產品與專業的技術支援。</p>
+            </div>
+            <div class="footer-section">
+                <h4>客戶服務</h4>
+                <a href="/contact">聯絡我們</a>
+                <a href="/privacy">隱私權政策</a>
+                <a href="/terms">服務條款</a>
+            </div>
+        </div>
+        <p style="margin-top: 4rem; border-top: 1px solid var(--border-color); padding-top: 2rem; text-align: center; font-size: 0.85rem;">
+            &copy; 2024 NEO-MALL 企業。保留所有權利。
+        </p>
+    </footer>
+
+    <script>
+        let isLoggedIn = false;
+        let productId = null;
+
+        async function checkUser() {
+            try {
+                const response = await fetch('/api/user/me');
+                if (response.ok) {
+                    const user = await response.json();
+                    isLoggedIn = true;
+                    document.getElementById('user-nav').innerHTML = `
+                        <a href="/dashboard">會員中心 (${user.username})</a>
+                        <a href="#" onclick="logout()">登出</a>
+                    `;
+                    
+                    // 更新評價表單
+                    document.getElementById('review-form-container').innerHTML = `
+                        <textarea id="review-comment" placeholder="分享您對此產品的看法..." 
+                                  style="width: 100%; height: 100px; padding: 15px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-dark); color: white; margin-bottom: 15px; resize: none;"></textarea>
+                        <button class="btn" onclick="submitReview()" style="width: 100%;">送出評價</button>
+                    `;
+                    updateCartCount();
+                }
+            } catch (error) {}
+        }
+
+        async function logout() {
+            await fetch('/api/logout', {method: 'POST'});
+            location.reload();
+        }
+
+        async function updateCartCount() {
+            try {
+                const response = await fetch('/api/cart');
+                if (response.ok) {
+                    const cart = await response.json();
+                    document.getElementById('cart-count').innerText = cart.length;
+                }
+            } catch (error) {}
+        }
+
+        async function loadProduct() {
+            const id = window.location.pathname.split('/').pop();
+            productId = id;
+            try {
+                const response = await fetch(`/api/products/${id}`);
+                if (!response.ok) throw new Error('產品不存在');
+                const product = await response.json();
+                
+                document.getElementById('product-detail').innerHTML = `
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: start;">
+                        <div class="product-image-container" style="height: 400px;">
+                            <img src="${product.image}" alt="${product.name}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;">
+                        </div>
+                        <div>
+                            <h2 style="font-size: 2.5rem; color: white; margin-bottom: 20px;">${product.name}</h2>
+                            <p style="font-size: 1.1rem; color: var(--text-muted); margin-bottom: 30px; line-height: 1.8;">${product.description}</p>
+                            <p class="price" style="font-size: 2.2rem; margin-bottom: 30px;">${product.price}</p>
+                            
+                            <div style="background: #252836; padding: 25px; border-radius: 12px; border: 1px solid var(--border-color);">
+                                <div style="display: flex; gap: 20px; align-items: center; margin-bottom: 25px;">
+                                    <label for="quantity" style="font-size: 1.1rem; font-weight: 600;">選擇數量：</label>
+                                    <input type="number" id="quantity" name="quantity" value="1" min="1" max="99" 
+                                           style="width: 80px; padding: 12px; font-size: 1.1rem; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-dark); color: white;">
+                                </div>
+                                <div style="display: flex; gap: 15px;">
+                                    <button class="btn" onclick="addToCart()" style="flex: 1; padding: 15px;">加入購物車</button>
+                                    <button class="btn btn-secondary" onclick="buyNow()" style="flex: 1; padding: 15px;">立即購買</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                loadReviews(id);
+            } catch (error) {
+                document.getElementById('product-detail').innerHTML = `<p>${error.message}</p>`;
+            }
+        }
+
+        async function loadReviews(id) {
+            try {
+                const response = await fetch(`/api/reviews/${id}`);
+                const reviews = await response.json();
+                const container = document.getElementById('reviews-list');
+                
+                if (reviews.length === 0) {
+                    container.innerHTML = '<p style="color: var(--text-muted);">目前尚無評價。成為第一個評價的人！</p>';
+                    return;
+                }
+
+                container.innerHTML = reviews.map(rev => `
+                    <div class="review-item" style="margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid var(--border-color);">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                            <strong style="color: var(--primary-color);">${rev.username}</strong>
+                            <span style="color: var(--text-muted); font-size: 0.8rem;">已驗證購買</span>
+                        </div>
+                        <div style="color: white; line-height: 1.6;">${rev.comment}</div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('載入評價失敗:', error);
+            }
+        }
+
+        async function submitReview() {
+            const comment = document.getElementById('review-comment').value;
+            if (!comment) {
+                alert('請輸入評論內容。');
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/reviews/add`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        product_id: productId,
+                        comment: comment
+                    })
+                });
+                const result = await response.json();
+                if (result.success) {
+                    alert('評價已成功送出！');
+                    document.getElementById('review-comment').value = '';
+                    loadReviews(productId);
+                } else {
+                    alert('送出失敗：' + (result.error || '未知錯誤'));
+                }
+            } catch (error) {
+                alert('發生錯誤，請稍後再試。');
+            }
+        }
+
+        async function addToCart() {
+            if (!isLoggedIn) {
+                alert('請先登入後再將產品加入購物車。');
+                window.location.href = '/login';
+                return;
+            }
+
+            const quantity = parseInt(document.getElementById('quantity').value) || 1;
+
+            try {
+                const response = await fetch('/api/cart/add', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        product_id: parseInt(productId),
+                        quantity: quantity
+                    })
+                });
+                const result = await response.json();
+                if (result.success) {
+                    alert('產品已成功加入購物車！');
+                    updateCartCount();
+                } else {
+                    alert('加入失敗：' + (result.error || '未知錯誤'));
+                }
+            } catch (error) {
+                alert('發生錯誤，請稍後再試。');
+            }
+        }
+
+        function buyNow() {
+            if (!isLoggedIn) {
+                alert('請先登入後再進行購買。');
+                window.location.href = '/login';
+                return;
+            }
+            // 立即購買邏輯：先加入購物車並跳轉到購物車頁面
+            addToCart().then(() => {
+                window.location.href = '/cart';
+            });
+        }
+
+        window.onload = () => {
+            checkUser();
+            loadProduct();
+        };
+    </script>
+</body>
+</html>

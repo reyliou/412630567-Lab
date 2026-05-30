@@ -1,0 +1,146 @@
+114-2-midterm
+開機，查看考試機器iPv4地址
+
+Port Scanning
+掃描開放 TCP ports
+加入發現的 vHost 到 hosts
+Web Enumeration
+識別網站技術和框架
+枚舉資訊，如用戶、安裝套件、主題
+過時的 xx 存在已知 CVE 漏洞
+Exploiting CVE-2023-xxxx
+下載並使用 exploit script
+登入並訪問管理面板
+Post-Exploitation Enumeration
+wp-config.php 包含
+
+define('DISALLOW_FILE_MODS', true);
+禁用安裝外掛、安裝佈景主題、更新系統的所有按鈕與功能
+所以無法透過 admin panel 安裝自訂惡意插件或修改主題內容拿到反向 shell
+: )
+
+查看其他 posts
+加入 vHost 到 /etc/hosts
+使用已知憑證登入
+檢視版本資訊
+此版本存在已知 CVE 漏洞
+Exploiting CVE-2025-xxxxx
+下載並使用 exploit
+測試讓目標對攻擊者控制的 HTTP Server 發起 GET 請求
+exploit script 存在錯誤
+方案一 為自行修復 : )
+
+方案二 找 CVE-2025-xxxxx PoC
+修改 PoC
+Initial Foothold
+利用 CVE-2025-xxxxx 取得反向 shell
+升級 shell
+生成 flags 並檢視 user flag
+Enumeration
+發現其他允許的特權指令
+檢視所有使用中的端口
+確認 port xxxx 為 ModelDrive 服務
+ModelDrive 只開放在 xx
+ModelDrive 以 xx 權限執行
+當前用戶 xx 有權限閱讀 ModelDrive 原始碼且能修改 xx
+Port Fowarding
+訪問 ModelDrive
+使用 ssh 或 chisel 端口轉發
+參考資料 :
+
+https://johnliu55.tw/ssh-tunnel.html
+https://notes.benheater.com/books/network-pivoting/page/port-forwarding-with-chisel
+SSH Local Port Forwarding
+端口轉發
+ssh -L 0.0.0.0:8000:localhost:8000 user@flow.ethci -N
+0.0.0.0 綁定本機上所有的網路介面，隧道入口綁定 Attacker 所有介面
+未指定 0.0.0.0 則預設綁定 127.0.0.1
+主流瀏覽器訪問 127.0.0.1 , localhost時不使用代理伺服器，但本機 hostname 不在規則內
+Burp Suite 自己的瀏覽器不在此限
+也可以透過機器上其他介面地址訪問轉發的服務，並透過Burp Suite 攔截請求
+SSH 轉發: 瀏覽器送出 HTTP 請求經過 SSH 隧道
+可以同時打開 Burp Suite , WireShark 觀察
+
+Chisel Reverse Port Forwarding
+https://github.com/jpillora/chisel
+
+端口轉發
+分析 auth.php
+認證介面繞過方案 :
+啟用 debug，取得登入回應的預期正確雜湊並嘗試離線破解
+取得 xx 用戶密碼後可以使用 SSH 轉發與登入
+
+修改 shadow_file 指向自訂 shadow 檔案
+若需動態轉發多個端口或掃描內網，可建立 SOCKS 代理，並在 Attacker 機器設定 proxychains config，流量會經過代理進入隧道
+
+內網滲透熱門隧道方案 : ligolo-ng
+
+Authentication - ModelDrive
+shadow 破解方案
+設置 debug 為 true
+在 victim 機器用 curl 執行登入請求 或是端口轉發後透過瀏覽器開發人員工具檢視網路請求
+得到 xx 用戶真實的 shadow hash
+離線破解
+自訂 shadow 方案
+從錯誤密碼的登入請求取的計算後的 shadow hash ， 加上密碼資訊以符合 shadow 格式
+sakiko:$y$j9T$edDxxxxv3d04pmMl0w9T1$g9xxxxUbXijiAhSAeqFgRPFvborTy4xxxxxHsi9RGe0:19000:0:99999:7:::
+後面幾個數值可以隨意填寫
+19000，從 Unix 紀元 (1970/1/1) 開始算起的 19000 天
+0，修改密碼後，最少需要過幾天才能再次修改
+99999，密碼在被強制要求更改之前，最多可以使用幾天
+7，如果密碼即將過期，系統會在到期前的 7 天，於使用者登入時顯示警告訊息
+第 7 欄，密碼過期後的寬限天數，留空表示無限制
+第 8 欄：帳號強制停用日，留空代表帳號永久有效
+第 9 欄：保留欄位，目前沒有用途
+
+Privilege Escalation
+From File Upload To RCE
+分析 upload.php
+繞過上傳限制
+RCE
+取得反向 shell<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>服務條款 | NEO-MALL 網路商城</title>
+    <link rel="stylesheet" href="/assets-library/style.css">
+</head>
+<body>
+    <nav>
+        <div class="logo">NEO-MALL</div>
+        <div class="nav-links">
+            <a href="/">首頁</a>
+        </div>
+    </nav>
+
+    <main class="container">
+        <div class="product-card" style="max-width: 900px; margin: 0 auto; padding: 60px;">
+            <h2 style="font-size: 2.5rem; margin-bottom: 30px; color: white;">服務條款</h2>
+            <div style="color: var(--text-muted); line-height: 1.8;">
+                <p style="margin-bottom: 20px;">感謝您選擇 NEO-MALL。在使用我們的服務前，請詳細閱讀以下服務條款。</p>
+                
+                <h3 style="color: white; margin: 30px 0 15px;">1. 帳號註冊</h3>
+                <p style="margin-bottom: 20px;">使用者應提供真實且正確的個人資料。若資料有誤或不實，NEO-MALL 有權暫停或終止該帳號之使用權限。</p>
+                
+                <h3 style="color: white; margin: 30px 0 15px;">2. 訂單與支付</h3>
+                <p style="margin-bottom: 20px;">當您在線上商城提交訂單時，即表示您同意支付該訂單所示之總金額。NEO-MALL 保留在發現價格錯誤或庫存不足時取消訂單的權利。</p>
+                
+                <h3 style="color: white; margin: 30px 0 15px;">3. 智慧財產權</h3>
+                <p style="margin-bottom: 20px;">本網站所有內容（包括文字、圖表、標誌、影像等）均屬於 NEO-MALL 或其合作夥伴之智慧財產，未經授權禁止轉載或使用。</p>
+                
+                <h3 style="color: white; margin: 30px 0 15px;">4. 免責聲明</h3>
+                <p style="margin-bottom: 20px;">NEO-MALL 將盡力確保服務的穩定性，但對於因不可抗力因素導致的服務中斷或資料損失不負法律責任。</p>
+                
+                <p style="margin-top: 40px; font-size: 0.9rem;">最後更新日期：2024 年 5 月</p>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p style="text-align: center; color: var(--text-muted); font-size: 0.85rem;">
+            &copy; 2024 NEO-MALL 企業。保留所有權利。
+        </p>
+    </footer>
+</body>
+</html>
