@@ -37,10 +37,9 @@ services:
       - "21:21"
       - "30000-30009:30000-30009"
     volumes:
-      - ./site-d-ftp:/home/vsftpd/anonymous:ro
+      - ./site-d-ftp:/home/vsftpd/anonymous
     environment:
       - ANONYMOUS_ENABLE=YES
-      # 關鍵：完全不檢查匿名密碼
       - NO_ANON_PASSWORD=YES
       - PASV_ADDRESS=192.168.17.133
       - PASV_MIN_PORT=30000
