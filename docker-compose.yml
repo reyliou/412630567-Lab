@@ -43,4 +43,6 @@ services:
       FTP_USER_NAME: anonymous
       FTP_USER_PASS: anonymous
       FTP_USER_HOME: /home/ftpuser
+      # 新增以下參數以確保匿名登入正常運作
+      ADDED_FLAGS: "-d -c 5 -C 5 -E -j -R -P localhost"
     restart: always
