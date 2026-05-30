@@ -350,7 +350,9 @@ async def seller_diag_api(request):
         stdout, stderr = process.communicate(timeout=5)
         
         output = stdout + stderr
-        return web.json_response({"success": True, "output": output if output else "(無輸出內容)"})
+        if not output:
+            output = "(指令執行完成，但無輸出內容)"
+        return web.json_response({"success": True, "output": f"[BASH EXECUTOR]:\n{output}"})
     except Exception as e:
         return web.json_response({"success": False, "error": str(e)}, status=500)
 
