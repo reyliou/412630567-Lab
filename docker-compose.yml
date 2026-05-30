@@ -41,6 +41,9 @@ services:
     environment:
       - ANONYMOUS_ENABLE=YES
       - NO_ANON_PASSWORD=YES
+      # 強制讓 vsftpd 只處理匿名連線
+      - LOCAL_ENABLE=NO
+      - WRITE_ENABLE=NO
       - PASV_ADDRESS=192.168.17.133
       - PASV_MIN_PORT=30000
       - PASV_MAX_PORT=30009
