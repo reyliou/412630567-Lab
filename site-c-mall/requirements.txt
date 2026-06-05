@@ -1,5 +1,5 @@
 aiohttp==3.9.1
-aiohttp-session[secure]
-cryptography
+aiohttp-session[secure]==2.12.1
+cryptography==42.0.8
 multidict==6.0.4
-jinja2
+jinja2==3.1.4

@@ -40,7 +40,7 @@
 ### 第五階段：不安全的文件上傳 (Insecure File Upload - CWE-434)
 *   **位置**：`/seller-portal` (賣家管理中心) 的手冊上傳功能。
 *   **繞過手法**：使用 Burp Suite 攔截上傳請求，將檔案的 `Content-Type` 偽造為 `application/pdf`。
-*   **關鍵情報**：成功上傳後，後端 API 為了方便開發者調試，在回應中洩漏了文件的**絕對路徑**：`/app/site-c-mall/static/uploads/file.txt`。
+*   **關鍵情報**：成功上傳後，後端 API 為了方便開發者調試，在回應中洩漏了文件的**絕對路徑**：`/app/static/uploads/file.txt`。
 
 ### 第六階段：FTP 敏感資訊外洩 (FTP Sensitive Data Exposure)
 *   **發現**：掃描發現內部測試環境開啟了匿名 FTP 服務 (`port 21`)。
@@ -53,11 +53,12 @@
 *   **滲透技巧**：由於 Port 8080 (Nginx) 網關具有嚴格的 URI 規範化檢查，會攔截 `..` 請求。攻擊者發現系統為了開發者便利，將後端服務直接暴露在 Port 8081 上，繞過了網關安全限制。
 *   **利用方式**：結合前一階段獲得的絕對路徑與 FTP 洩漏的檔名，向 Port 8081 發送惡意請求。
 *   **終極 Payload**：
-    `curl --path-as-is http://localhost:8081/assets-library/../../config/secret_flag.txt`
+    `curl --path-as-is http://localhost:8081/assets-library/../config/secret_flag.txt`
 *   **結果**：成功獲取終極 Flag。
 
 
-### 第八階段：指令注入與權限提升 (Command Injection & PrivEsc - CWE-78)
+### 延伸攻擊一：指令注入與權限提升 (Command Injection & PrivEsc - CWE-78)
+> 此段為非主 CVE 的延伸風險，用於展示任意檔案讀取取得情報後，如何串接其他設計失誤擴大影響。
 *   **位置**：`/seller-portal` 的「系統診斷工具」。
 *   **漏洞原理**：系統允許賣家以 `sudo` 權限執行 `/root/flag.sh`。該腳本在處理輸入參數時使用了危險的 `eval` 函數，且後端診斷工具被配置為使用 `/bin/bash` 執行指令。
 *   **提權路徑**：攻擊者可以構造包含分號 (`;`) 的參數，利用 `eval` 的特性達成 RCE。
@@ -65,7 +66,7 @@
     `sudo /root/flag.sh '412630567 ; id'`
 *   **結果**：伺服器回傳 `uid=0(root)`，證實成功取得最高權限。
 
-### 第九階段：讀取雙重動態 Flag (Flag Exfiltration)
+### 延伸攻擊二：讀取雙重動態 Flag (Flag Exfiltration)
 *   **動作**：利用已取得的 Root 權限，讀取受系統保護的 Flag 檔案。
 *   **讀取 User Flag**：
     `sudo /root/flag.sh '412630567 ; cat /home/neo-user/user_flag.txt'`
@@ -73,7 +74,8 @@
     `sudo /root/flag.sh '412630567 ; cat /root/root_flag.txt'`
 *   **技術亮點**：系統為不同權限等級的 Flag 設計了獨立的加鹽雜湊 (Salted Hash) 邏輯，確保 User Flag 與 Root Flag 內容完全不同，模擬真實 CTF 的多層次挑戰。
 
-### 第十階段：Nginx/Lua 後門 RCE (CWE-94)
+### 延伸攻擊三：Nginx/Lua 後門 RCE (CWE-94)
+> 此段同樣不是 CVE-2024-23334 本身，而是透過前述資訊外洩找到的內部偵錯介面。
 *   **漏洞類型**：CWE-94 (程式碼注入)
 *   **發現方式**：透過 CVE-2024-23334 讀取 `site-b-dev` 的部署筆記，發現隱藏的偵錯介面。
 *   **漏洞原理**：開發者在 OpenResty/Nginx 網關中留下了用於系統診斷的 Lua 後門。該介面直接將 HTTP 標頭 `X-NEO-DEBUG` 的內容傳入 `loadstring()` 並執行，導致嚴重的 RCE。

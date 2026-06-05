@@ -45,9 +45,15 @@
 7. 使用 `neo_vendor/VendorPass8899` 登入賣家中心
 8. 偽造 `Content-Type: application/pdf` 上傳文字檔並取得絕對路徑
 9. 讀取 FTP 備份提示 `backup_logs/server_migration.bak`
-10. 對 `http://localhost:8081/assets-library/../../config/secret_flag.txt` 發送 `--path-as-is` 請求，展示 CVE-2024-23334 任意檔案讀取
+10. 對 `http://localhost:8081/assets-library/../config/secret_flag.txt` 發送 `--path-as-is` 請求，展示 CVE-2024-23334 任意檔案讀取
 11. 使用賣家診斷工具觸發 `/root/flag.sh` 指令注入，展示 user/root flag
 12. 展示 `/api/debug-system` 的 Lua RCE 作為延伸風險
+
+如果 FTP passive mode 需要指定宿主機位址，可先設定：
+
+```bash
+FTP_ADDRESS=<你的主機 IP> docker compose up --build
+```
 
 ## 自動展示腳本
 
@@ -58,10 +64,22 @@ chmod +x exploit.sh
 ./exploit.sh
 ```
 
+Windows PowerShell 可改用：
+
+```powershell
+.\exploit.ps1
+```
+
 可覆寫目標位址：
 
 ```bash
 GATEWAY_URL=http://localhost:8080 AIOHTTP_URL=http://localhost:8081 FTP_URL=ftp://localhost ./exploit.sh
+```
+
+PowerShell 版可覆寫目標：
+
+```powershell
+.\exploit.ps1 -GatewayUrl http://localhost:8080 -AiohttpUrl http://localhost:8081 -FtpUrl ftp://localhost
 ```
 
 ## 參考資料

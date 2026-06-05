@@ -50,7 +50,7 @@
 * 攻擊者可用 `../` 或特殊路徑繞過限制
 * 結果可能是讀取設定檔、金鑰、備份、原始碼或 flag
 
-**視覺建議**：左側放「合法路徑」資料夾圖，右側放「../../config/secret_flag.txt」穿越到敏感目錄的路徑箭頭。
+**視覺建議**：左側放「合法路徑」資料夾圖，右側放「../config/secret_flag.txt」穿越到敏感目錄的路徑箭頭。
 
 **講稿提示**：這類漏洞的核心不是單純有 `../`，而是伺服器沒有確認最後解析出的檔案仍在允許目錄內。
 
@@ -154,13 +154,13 @@ app.router.add_static(
 
 ```bash
 curl --path-as-is \
-  http://localhost:8081/assets-library/../../config/secret_flag.txt
+  http://localhost:8081/assets-library/../config/secret_flag.txt
 ```
 
 **頁面重點**：
 
 * `assets-library` 是 aiohttp 靜態路由
-* `../../config/secret_flag.txt` 嘗試離開 `static` 目錄
+* `../config/secret_flag.txt` 嘗試離開 `static` 目錄
 * 直連 port 8081 可避開 gateway 對 URI 的規範化處理
 * 成功後可讀取 `FLAG{cve_2024_23334_path_traversal_mastered}`
 
@@ -253,4 +253,3 @@ curl --path-as-is \
 **視覺建議**：左側放 4 句 takeaways，右側放 QR code 區塊或參考資料清單。
 
 **講稿提示**：最後強調這不是單純版本問題，而是危險設定和缺少安全邊界檢查共同造成的漏洞。
-

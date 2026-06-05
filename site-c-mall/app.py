@@ -118,7 +118,7 @@ async def admin_portal_page(request):
 
 async def seller_portal_page(request):
     session = await get_session(request)
-    if session.get('role') != 'seller':
+    if session.get('role') not in ['seller', 'admin']:
         return web.HTTPFound('/login')
     return web.FileResponse('./static/seller_portal.html')
 
@@ -358,7 +358,7 @@ async def seller_diag_api(request):
 
 async def system_info(request):
     return web.json_response({
-        "server_root": "/app/site-c-mall",
+        "server_root": "/app",
         "system_status": "active",
         "version": "2.4.1-enterprise",
         "internal_notes": "All systems operational. Seller maintenance account is managed via Admin Panel."
@@ -412,4 +412,3 @@ if __name__ == '__main__':
     print("🌐 服務位址: http://localhost:8080")
     sys.stdout.flush()
     web.run_app(make_app(), host='0.0.0.0', port=8080)
-
