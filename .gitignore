@@ -1,4 +1,5 @@
 outputs/
+ppt/
 __pycache__/
 *.pyc
 CANVA_PRESENTATION.md
