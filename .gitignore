@@ -2,4 +2,5 @@ outputs/
 __pycache__/
 *.pyc
 CANVA_PRESENTATION.md
+PROJECT_DELIVERABLES.md
 *.pptx
