@@ -283,9 +283,9 @@ async def add_product_review(request):
     if "username" not in session:
         return web.json_response({"error": "請先登入"}, status=401)
         
-    # 限制只有賣家或管理員可以留言，一般使用者 (guest) 不行
-    if session.get('role') not in ['seller', 'admin']:
-        return web.json_response({"error": "權限不足：僅限供應商 (Seller) 或管理員發表評價"}, status=403)
+    # 限制只有一般買家或賣家可以留言，測試帳號 (guest) 不行
+    if session.get('username') == 'guest':
+        return web.json_response({"error": "權限不足：測試帳號 (guest) 不具備發表評價的權限，請註冊正式帳號"}, status=403)
         
     try:
         data = await request.json()
