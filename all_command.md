@@ -6,9 +6,10 @@
 ## 環境設定
 
 ```bash
-# TARGET為攻擊機IP
+# TARGET為靶機IP
 $TARGET
 export TARGET=192.168.17.133
+#這是我的靶機IP別搞我
 
 #設curl=jcurl+讀懂中文編碼的指令
 alias jcurl='curl -s | python3 -c "import sys,json; d=json.load(sys.stdin); print(json.dumps(d, ensure_ascii=False, indent=2))"'
