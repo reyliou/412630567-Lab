@@ -13,25 +13,26 @@
 
 ## 3. 完整攻擊鏈 (Final Attack Chain)
 
-### 第一階段：資訊挖掘 (BOLA & SSTI)
-*   **BOLA**：存取 `/api/products/0` 獲取隱藏線索，發現 `/system-status/` 介面。
-*   **FTP 滲透**：
-    *   從 `/changelog` 發現匿名 FTP 服務的存在。
-    *   在 FTP 的 `/backup_logs/` 目錄下載 `credentials.bak`。
-    *   **憑證發現**：在 FTP 的 `/backup_logs/` 目錄下載 `credentials.bak`。發現 `guest` 的雜湊值 `FCF41657F02F88137A1BCF068A32C0A3`。
-    *   **雜湊破解**：識別該雜湊為 MD5，並使用常用字典（如 `rockyou.txt`）或進行模式分析。
-    *   **破解結果**：成功破解得到密碼 `guest123`。
-*   **SSTI**：使用 `guest/guest123` 登入後，利用產品評論功能的 Jinja2 漏洞 (`{{ config }}`) 獲取賣家 (Seller) 憑據。
+### 第一階段：資訊挖掘與身份偽裝 (Discovery & Registration)
+*   **BOLA**：存取 `/api/products/0` 獲取隱藏線索，發現內部系統指向 `/system-status/`。
+*   **FTP 滲透與憑證破解**：
+    *   從 `/changelog` 的日誌紀錄發現匿名 FTP 服務的存在。
+    *   在 FTP 的 `/backup_logs/` 目錄下載 `credentials.bak` 並破解 `guest` 密碼為 `guest123`。
+*   **身份註冊 (關鍵步驟)**：
+    *   使用 `guest/guest123` 登入。
+    *   存取 `/api/user/me` 獲取 guest 的**邀請碼**。
+    *   利用該邀請碼**重新註冊一個正式帳號** (正式帳號才具備發表評論的權限)。
+*   **SSTI**：利用新註冊的帳號在產品評論功能中輸入 Jinja2 語法 (`{{ config }}`)，成功獲取 `app_config` 中的賣家 (Seller) 憑據。
 
 ### 第二階段：路徑穿越 (CVE-2024-23334)
-*   **動作**：利用賣家權限上傳檔案獲取絕對路徑 `/app/static/uploads/`。
-*   **情報**：匿名 FTP 下載 `server_migration.bak` 獲取內部 Port 8081 的資訊。
-*   **利用**：透過 Port 8081 繞過網關限制，讀取敏感檔案。
+*   **動作**：利用賣家權限登入後上傳 PDF 檔案，從回傳訊息獲取絕對路徑 `/app/static/uploads/`。
+*   **情報**：從 FTP 下載的 `server_migration.bak` 中得知 `site-b-dev` 被掛載於 `/site-b-dev/`，且內部管理 Port 為 8081。
+*   **利用**：透過 Port 8081 繞過網關過濾，讀取敏感檔案。
     `curl --path-as-is http://localhost:8081/assets-library/../../../site-b-dev/configs/deploy_note.txt`
-*   **關鍵收穫**：發現 Nginx Gateway 存在偵錯介面與自定義標頭 `X-NEO-DEBUG`。
+*   **關鍵收穫**：確認 Nginx Gateway 存在偵錯介面與自定義標頭 `X-NEO-DEBUG`。
 
 ### 第三階段：遠端代碼執行 (Lua RCE)
-*   **發現**：在 `/system-status/` (site-a-status) 原始碼中發現 `X-NEO-DEBUG` 的具體用法。
+*   **發現**：結合 `deploy_note.txt` 的提示與 `/system-status/` (site-a-status) 原始碼中的 HTML 註解，確認 `X-NEO-DEBUG` 標頭可執行 Lua 腳本。
 *   **利用**：透過 Nginx Lua 注入取得 Gateway 容器的控制權。
     `curl -H 'X-NEO-DEBUG: ngx.say(io.popen("id"):read("*a"))' http://localhost:8080/api/debug-system`
 *   **狀態**：獲得 `nobody` 使用者權限 (於 `nginx-gateway` 容器內)。
