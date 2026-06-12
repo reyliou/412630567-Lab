@@ -31,22 +31,49 @@
         <h2 style="margin-bottom: 2.5rem; font-size: 2rem; font-weight: 800;">會員中心</h2>
         <div class="dashboard-grid">
             <aside class="sidebar">
-                <a href="#" class="sidebar-link active"><i class="fas fa-user"></i> 個人資料</a>
-                <a href="#" class="sidebar-link"><i class="fas fa-box"></i> 我的訂單</a>
-                <a href="#" class="sidebar-link"><i class="fas fa-heart"></i> 收藏清單</a>
-                <a href="#" class="sidebar-link"><i class="fas fa-cog"></i> 帳號設定</a>
+                <a href="#" class="sidebar-link active" onclick="showTab('profile', this)"><i class="fas fa-user"></i> 個人資料</a>
+                <a href="#" class="sidebar-link" onclick="showTab('orders', this)"><i class="fas fa-box"></i> 我的訂單</a>
+                <a href="#" class="sidebar-link" onclick="showTab('likes', this)"><i class="fas fa-heart"></i> 收藏清單</a>
+                <a href="#" class="sidebar-link" onclick="showTab('settings', this)"><i class="fas fa-cog"></i> 帳號設定</a>
                 <div id="seller-link-container"></div>
                 <a href="#" onclick="logout()" class="sidebar-link" style="color: #ff4b2b; margin-top: 20px;"><i class="fas fa-sign-out-alt"></i> 登出帳號</a>
             </aside>
             <section class="content">
-                <div class="product-card" style="margin-bottom: 30px;">
-                    <h3 style="margin-bottom: 20px;">歡迎回來，<span id="welcome-user">會員</span></h3>
-                    <p>您可以在這裡管理您的個人資料、查看訂單狀態以及更新您的帳號設定。</p>
+                <div id="profile-tab" class="tab-content">
+                    <div class="product-card" style="margin-bottom: 30px;">
+                        <h3 style="margin-bottom: 20px;">歡迎回來，<span id="welcome-user">會員</span></h3>
+                        <p>您可以在這裡管理您的個人資料、查看訂單狀態以及更新您的帳號設定。</p>
+                    </div>
+                    <div id="seller-status-card"></div>
+                    <div class="product-card">
+                        <h4 style="margin-bottom: 20px; color: white;">最近的動態</h4>
+                        <p style="color: var(--text-muted);">目前尚無最新動態。</p>
+                    </div>
                 </div>
-                <div id="seller-status-card"></div>
-                <div class="product-card">
-                    <h4 style="margin-bottom: 20px; color: white;">最近的動態</h4>
-                    <p style="color: var(--text-muted);">目前尚無最新動態。</p>
+
+                <div id="settings-tab" class="tab-content" style="display: none;">
+                    <div class="product-card" style="margin-bottom: 30px;">
+                        <h3 style="margin-bottom: 20px; color: white;"><i class="fas fa-cog"></i> 帳號設定</h3>
+                        <div style="background: rgba(255, 255, 255, 0.05); padding: 20px; border-radius: 8px; border: 1px solid var(--border-color);">
+                            <p style="margin-bottom: 10px;">您的專屬邀請碼：</p>
+                            <p id="user-invite-code" style="font-family: monospace; font-size: 1.5rem; color: var(--primary-color); letter-spacing: 2px; font-weight: 800;"></p>
+                            <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 15px;">* 您可以將此代碼提供給新成員，用於系統註冊邀請。</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="orders-tab" class="tab-content" style="display: none;">
+                    <div class="product-card">
+                        <h3 style="color: white;">我的訂單</h3>
+                        <p style="color: var(--text-muted);">目前尚無歷史訂單紀錄。</p>
+                    </div>
+                </div>
+
+                <div id="likes-tab" class="tab-content" style="display: none;">
+                    <div class="product-card">
+                        <h3 style="color: white;">收藏清單</h3>
+                        <p style="color: var(--text-muted);">目前尚無收藏產品。</p>
+                    </div>
                 </div>
             </section>
         </div>
@@ -59,6 +86,21 @@
     </footer>
 
     <script>
+        function showTab(tabId, element) {
+            // 隱藏所有分頁
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.style.display = 'none';
+            });
+            // 顯示指定分頁
+            document.getElementById(tabId + '-tab').style.display = 'block';
+            
+            // 更新 Sidebar 樣式
+            document.querySelectorAll('.sidebar-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            element.classList.add('active');
+        }
+
         async function checkUser() {
             try {
                 const response = await fetch('/api/user/me');
@@ -70,9 +112,8 @@
                     `;
                     document.getElementById('welcome-user').innerText = user.username;
                     
-                    // 顯示邀請碼
+                    // 填充邀請碼
                     if (user.invitation_code) {
-                        document.getElementById('account-settings-card').style.display = 'block';
                         document.getElementById('user-invite-code').innerText = user.invitation_code;
                     }
                     
@@ -102,24 +143,6 @@
 
         async function logout() {
             await fetch('/api/logout', {method: 'POST'});
-            window.location.href = '/';
-        }
-
-        async function updateCartCount() {
-            try {
-                const response = await fetch('/api/cart');
-                if (response.ok) {
-                    const cart = await response.json();
-                    document.getElementById('cart-count').innerText = cart.length;
-                }
-            } catch (error) {}
-        }
-
-        window.onload = checkUser;
-    </script>
-</body>
-</html>
-etch('/api/logout', {method: 'POST'});
             window.location.href = '/';
         }
 
