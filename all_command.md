@@ -6,7 +6,7 @@
 ## 環境設定
 
 ```bash
-# TARGET為攻擊機IP
+# TARGET為靶機IP，這是我的別搞我
 $TARGET
 export TARGET=192.168.17.133
 
