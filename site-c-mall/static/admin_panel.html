@@ -33,12 +33,9 @@
         </div>
     </main>
 
-    <footer>
-        <p style="text-align: center; color: var(--text-muted); font-size: 0.85rem;">
-            &copy; 2024 NEO-MALL 企業。系統安全性已由 AI 自動監控。
-        </p>
-    </footer>
+    <div id="footer-placeholder"></div>
 
+    <script src="/assets-library/js/components.js"></script>
     <script>
         async function logout() {
             await fetch('/api/logout', {method: 'POST'});
