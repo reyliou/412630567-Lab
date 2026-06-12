@@ -37,8 +37,6 @@ services:
     build: ./site-c-mall
     ports:
       - "8081:8080"
-    volumes:
-      - ./site-c-mall/flag.sh:/root/flag.sh
     networks:
       - lab-net
     restart: always
