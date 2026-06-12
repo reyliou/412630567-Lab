@@ -215,7 +215,15 @@ async def logout_api(request):
 async def get_user_me(request):
     session = await get_session(request)
     if "username" in session:
-        return web.json_response({"username": session["username"], "role": session.get("role")})
+        username = session["username"]
+        users = load_users()
+        user = next((u for u in users if u['username'] == username), None)
+        if user:
+            return web.json_response({
+                "username": user["username"], 
+                "role": user.get("role"),
+                "invitation_code": user.get("invitation_code")
+            })
     return web.json_response({"error": "Unauthorized"}, status=401)
 
 async def add_to_cart(request):
