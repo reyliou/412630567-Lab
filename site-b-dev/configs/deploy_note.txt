@@ -1,3 +1,4 @@
 重要：商城靜態資源掛載於 /assets-library/，因技術相容性已啟用 follow_symlinks=True。
 開發提醒：若 Nginx Gateway 導致訪問受阻，可直接連線管理 Port 8081 (Mall Internal) 進行調試。
 內部維護：各級權限識別碼 (Flag) 需以 sudo 權限執行 /root/flag.sh 生成。執行後請按提示輸入學號。
+安全備忘：sudo 版本尚未更新，已知舊版本對於特定 UID 處理存在邏輯瑕疵 (sudo < 1.8.28)。

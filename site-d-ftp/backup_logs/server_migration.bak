@@ -3,4 +3,5 @@ System Migration Notes:
 - Main Mall application internal debug port is 8081.
 - Flag generation logic consolidated into /root/flag.sh.
 - Deployment Note: Static assets moved to /assets-library/.
+- Dev portal config files mounted at /site-b-dev/ inside mall container for legacy compatibility.
 - SECURITY: CVE-2024-23334 patch pending. follow_symlinks is currently ENABLED for compatibility.
