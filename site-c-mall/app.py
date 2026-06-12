@@ -409,7 +409,7 @@ async def system_info(request):
 
 def make_app():
     # 使用 Fernet.generate_key() 生成的合法 32 位元金鑰 (base64url 格式)
-    secret_key = b'k7zZ_fG-pY_X9V6D-W9-L1A_mN-0B1C2D3E4F5G6H7I8='
+    secret_key = b'so_gYguU4YtbMW59AHsghH25FgbD0klSRmnDF5zWVjY='
     
     app = web.Application()
     
