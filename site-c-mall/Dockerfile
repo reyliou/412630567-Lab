@@ -3,14 +3,21 @@ FROM ubuntu:18.04
 # 設定非互動模式避免安裝時卡住
 ENV DEBIAN_FRONTEND=noninteractive
 
-# 安裝 Python 3, Pip 與必要工具
+# 安裝 Python 3.10 (使用 deadsnakes PPA) 與必要工具
 RUN apt-get update && apt-get install -y \
-    python3 \
-    python3-pip \
+    software-properties-common \
+    && add-apt-repository ppa:deadsnakes/ppa \
+    && apt-get update && apt-get install -y \
+    python3.10 \
+    python3.10-distutils \
+    python3.10-dev \
     sudo \
     curl \
     bash \
     && rm -rf /var/lib/apt/lists/*
+
+# 安裝與配置 pip for Python 3.10
+RUN curl -sS https://bootstrap.pypa.io/get-pip.py | python3.10
 
 # 建立一般使用者 neo-user
 RUN useradd -m -s /bin/bash neo-user
@@ -20,7 +27,7 @@ WORKDIR /app
 
 # 複製依賴項並安裝
 COPY requirements.txt .
-RUN pip3 install --no-cache-dir -r requirements.txt
+RUN python3.10 -m pip install --no-cache-dir -r requirements.txt
 
 # 複製應用程式檔案
 COPY . .
@@ -47,5 +54,5 @@ EXPOSE 8080
 # 以 neo-user 啟動
 USER neo-user
 
-# 啟動應用程式 (Ubuntu 預設 python 指向 python2，故使用 python3)
-CMD ["python3", "app.py"]
+# 啟動應用程式 (使用新安裝的 python3.10)
+CMD ["python3.10", "app.py"]
