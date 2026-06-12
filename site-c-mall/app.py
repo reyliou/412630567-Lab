@@ -110,6 +110,9 @@ async def privacy_page(request):
 async def terms_page(request):
     return web.FileResponse('./static/terms.html')
 
+async def changelog_page(request):
+    return web.FileResponse('./static/changelog.html')
+
 async def admin_portal_page(request):
     session = await get_session(request)
     if session.get('role') != 'admin':
@@ -396,6 +399,7 @@ def make_app():
         web.get('/cart', cart_page),
         web.get('/privacy', privacy_page),
         web.get('/terms', terms_page),
+        web.get('/changelog', changelog_page),
         web.get('/admin-portal', admin_portal_page),
         web.get('/seller-portal', seller_portal_page),
         
