@@ -37,6 +37,8 @@ services:
     build: ./site-c-mall
     ports:
       - "8081:8080"
+    volumes:
+      - ./site-b-dev:/site-b-dev:ro
     networks:
       - lab-net
     restart: always

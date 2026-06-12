@@ -21,7 +21,7 @@
 *   **動作**：利用賣家權限上傳檔案獲取絕對路徑 `/app/static/uploads/`。
 *   **情報**：匿名 FTP 下載 `server_migration.bak` 獲取內部 Port 8081 的資訊。
 *   **利用**：透過 Port 8081 繞過網關限制，讀取敏感檔案。
-    `curl --path-as-is http://localhost:8081/assets-library/../../site-b-dev/configs/deploy_note.txt`
+    `curl --path-as-is http://localhost:8081/assets-library/../../../site-b-dev/configs/deploy_note.txt`
 *   **關鍵收穫**：發現 Nginx Gateway 存在偵錯介面與自定義標頭 `X-NEO-DEBUG`。
 
 ### 第三階段：遠端代碼執行 (Lua RCE)
