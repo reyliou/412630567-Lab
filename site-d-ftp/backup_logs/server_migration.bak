@@ -4,4 +4,5 @@ System Migration Notes:
 - Flag generation logic consolidated into /root/flag.sh.
 - Deployment Note: Static assets moved to /assets-library/.
 - Dev portal config files mounted at /site-b-dev/ inside mall container for legacy compatibility.
+- sudo version: 1.8.21p2 (patch pending, see USN-4154-1)
 - SECURITY: CVE-2024-23334 patch pending. follow_symlinks is currently ENABLED for compatibility.
