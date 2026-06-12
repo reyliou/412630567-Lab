@@ -1,9 +1,10 @@
 FROM python:3.10-alpine
 
-# 安裝系統工具與特定的 sudo 版本 (CVE-2019-14287)
-# 在 Alpine 中，我們手動指定版本或使用包含該漏洞的配置
-RUN apk add --no-cache \
-    sudo \
+# 安裝系統工具與特定的「脆弱版本」sudo (CVE-2019-14287)
+# 透過指定 Alpine v3.12 的存儲庫安裝 sudo 1.9.0-r0
+RUN apk add --no-cache --repository=https://dl-cdn.alpinelinux.org/alpine/v3.12/main \
+    sudo=1.9.0-r0 && \
+    apk add --no-cache \
     curl \
     bash \
     procps \
@@ -41,7 +42,6 @@ RUN cp flag.sh /root/flag.sh && \
 # 漏洞利用點：sudo -u#-1 /bin/bash
 RUN echo "Defaults:neo-user !requiretty" >> /etc/sudoers && \
     echo "neo-user ALL=(ALL, !root) NOPASSWD: /bin/bash, /root/flag.sh" >> /etc/sudoers
-
 
 # 暴露埠號
 EXPOSE 8080
