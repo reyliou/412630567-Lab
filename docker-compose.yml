@@ -11,7 +11,6 @@ services:
       - neo-mall
       - neo-status
       - neo-dev
-      - neo-phpnginx
     networks:
       - lab-net
     restart: always
@@ -56,27 +55,6 @@ services:
       - ADDRESS=${FTP_ADDRESS:-127.0.0.1}
       - MIN_PORT=30000
       - MAX_PORT=30009
-    networks:
-      - lab-net
-    restart: always
-
-  neo-php:
-    image: php:7.2.10-fpm
-    volumes:
-      - ./site-e-php/www:/var/www/html
-    networks:
-      - lab-net
-    restart: always
-
-  neo-phpnginx:
-    image: nginx:1
-    volumes:
-      - ./site-e-php/www:/var/www/html
-      - ./site-e-php/nginx.conf:/etc/nginx/conf.d/default.conf
-    ports:
-      - "8082:80"
-    depends_on:
-      - neo-php
     networks:
       - lab-net
     restart: always
