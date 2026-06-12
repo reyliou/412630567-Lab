@@ -12,6 +12,8 @@ services:
       - neo-status
       - neo-dev
       - neo-phpnginx
+    networks:
+      - lab-net
     restart: always
 
   neo-status:
@@ -19,6 +21,8 @@ services:
     volumes:
       - ./site-a-status:/usr/share/nginx/html:ro
       - ./site-a-status/nginx.conf:/etc/nginx/nginx.conf:ro
+    networks:
+      - lab-net
     restart: always
 
   neo-dev:
@@ -26,12 +30,18 @@ services:
     volumes:
       - ./site-b-dev:/usr/share/nginx/html:ro
       - ./site-b-dev/nginx.conf:/etc/nginx/nginx.conf:ro
+    networks:
+      - lab-net
     restart: always
 
   neo-mall:
     build: ./site-c-mall
     ports:
       - "8081:8080"
+    volumes:
+      - ./site-c-mall/flag.sh:/root/flag.sh
+    networks:
+      - lab-net
     restart: always
 
   neo-ftp:
@@ -46,12 +56,16 @@ services:
       - ADDRESS=${FTP_ADDRESS:-127.0.0.1}
       - MIN_PORT=30000
       - MAX_PORT=30009
+    networks:
+      - lab-net
     restart: always
 
   neo-php:
     image: php:7.2.10-fpm
     volumes:
       - ./site-e-php/www:/var/www/html
+    networks:
+      - lab-net
     restart: always
 
   neo-phpnginx:
@@ -63,4 +77,10 @@ services:
       - "8082:80"
     depends_on:
       - neo-php
+    networks:
+      - lab-net
     restart: always
+
+networks:
+  lab-net:
+    driver: bridge
