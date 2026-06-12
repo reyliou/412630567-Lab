@@ -283,6 +283,10 @@ async def add_product_review(request):
     if "username" not in session:
         return web.json_response({"error": "請先登入"}, status=401)
         
+    # 限制只有賣家或管理員可以留言，一般使用者 (guest) 不行
+    if session.get('role') not in ['seller', 'admin']:
+        return web.json_response({"error": "權限不足：僅限供應商 (Seller) 或管理員發表評價"}, status=403)
+        
     try:
         data = await request.json()
     except:
@@ -429,3 +433,4 @@ if __name__ == '__main__':
     print("🌐 服務位址: http://localhost:8080")
     sys.stdout.flush()
     web.run_app(make_app(), host='0.0.0.0', port=8080)
+)

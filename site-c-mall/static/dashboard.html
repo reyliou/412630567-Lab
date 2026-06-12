@@ -70,6 +70,12 @@
                     `;
                     document.getElementById('welcome-user').innerText = user.username;
                     
+                    // 顯示邀請碼
+                    if (user.invitation_code) {
+                        document.getElementById('account-settings-card').style.display = 'block';
+                        document.getElementById('user-invite-code').innerText = user.invitation_code;
+                    }
+                    
                     if (user.role === 'seller' || user.role === 'admin') {
                         document.getElementById('seller-link-container').innerHTML = `
                             <a href="/seller-portal" class="sidebar-link" style="background: rgba(0, 123, 255, 0.1); color: var(--primary-color); border: 1px solid var(--primary-color);">
@@ -96,6 +102,24 @@
 
         async function logout() {
             await fetch('/api/logout', {method: 'POST'});
+            window.location.href = '/';
+        }
+
+        async function updateCartCount() {
+            try {
+                const response = await fetch('/api/cart');
+                if (response.ok) {
+                    const cart = await response.json();
+                    document.getElementById('cart-count').innerText = cart.length;
+                }
+            } catch (error) {}
+        }
+
+        window.onload = checkUser;
+    </script>
+</body>
+</html>
+etch('/api/logout', {method: 'POST'});
             window.location.href = '/';
         }
 
