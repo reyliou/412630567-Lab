@@ -1,23 +1,22 @@
-FROM ubuntu:18.04
+FROM ubuntu:20.04
 
-# 設定非互動模式避免安裝時卡住
+# 設定非互動模式
 ENV DEBIAN_FRONTEND=noninteractive
 
-# 安裝 Python 3.10 (使用 deadsnakes PPA) 與必要工具
+# 安裝 Python 3, Pip 與基礎工具
 RUN apt-get update && apt-get install -y \
-    software-properties-common \
-    && add-apt-repository ppa:deadsnakes/ppa \
-    && apt-get update && apt-get install -y \
-    python3.10 \
-    python3.10-distutils \
-    python3.10-dev \
-    sudo \
+    python3 \
+    python3-pip \
     curl \
+    wget \
     bash \
     && rm -rf /var/lib/apt/lists/*
 
-# 安裝與配置 pip for Python 3.10
-RUN curl -sS https://bootstrap.pypa.io/get-pip.py | python3.10
+# 強制降級 sudo 到脆弱版本 (CVE-2019-14287)
+# 下載 Ubuntu 18.04 的 sudo 1.8.21p2
+RUN wget http://archive.ubuntu.com/ubuntu/pool/main/s/sudo/sudo_1.8.21p2-3ubuntu1_amd64.deb -O /tmp/sudo.deb && \
+    dpkg -i /tmp/sudo.deb && \
+    rm /tmp/sudo.deb
 
 # 建立一般使用者 neo-user
 RUN useradd -m -s /bin/bash neo-user
@@ -27,7 +26,7 @@ WORKDIR /app
 
 # 複製依賴項並安裝
 COPY requirements.txt .
-RUN python3.10 -m pip install --no-cache-dir -r requirements.txt
+RUN pip3 install --no-cache-dir -r requirements.txt
 
 # 複製應用程式檔案
 COPY . .
@@ -54,5 +53,6 @@ EXPOSE 8080
 # 以 neo-user 啟動
 USER neo-user
 
-# 啟動應用程式 (使用新安裝的 python3.10)
-CMD ["python3.10", "app.py"]
+# 啟動應用程式
+# Ubuntu 20.04 的 python3 是 3.8+，支援 aiohttp 3.9.1
+CMD ["python3", "app.py"]
