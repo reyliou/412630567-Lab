@@ -168,28 +168,41 @@ async def register_api(request):
     password = data.get("password")
     confirm_password = data.get("confirm_password")
     email = data.get("email")
+    invite_code = data.get("invite_code")
     
-    if not username or not password or not email or not confirm_password:
-        return web.json_response({"success": False, "message": "所有欄位均為必填"}, status=400)
+    if not username or not password or not email or not confirm_password or not invite_code:
+        return web.json_response({"success": False, "message": "所有欄位 (包含邀請碼) 均為必填"}, status=400)
     
     if password != confirm_password:
         return web.json_response({"success": False, "message": "兩次輸入的密碼不符"}, status=400)
     
     users = load_users()
+    
+    # 驗證邀請碼是否存在
+    inviter = next((u for u in users if u.get("invitation_code") == invite_code), None)
+    if not inviter:
+        return web.json_response({"success": False, "message": "無效的邀請碼，系統僅限內部成員邀請"}, status=403)
+
     if any(u['username'] == username for u in users):
         return web.json_response({"success": False, "message": "此帳號已被註冊"}, status=400)
     
+    # 生成新的邀請碼
+    import random
+    import string
+    new_code = "NEO-" + ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
+
     new_user = {
         "id": len(users),
         "username": username,
         "password": password,
         "role": "user",
-        "email": email
+        "email": email,
+        "invitation_code": new_code
     }
     users.append(new_user)
     save_users(users)
     
-    return web.json_response({"success": True, "message": "註冊成功"})
+    return web.json_response({"success": True, "message": "註冊成功！您的專屬邀請碼為: " + new_code})
 
 async def logout_api(request):
     session = await get_session(request)

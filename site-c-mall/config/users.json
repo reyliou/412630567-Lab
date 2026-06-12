@@ -4,20 +4,23 @@
         "username": "admin",
         "password": "NeoAdmin7788",
         "role": "admin",
-        "email": "admin@neo-mall.tw"
+        "email": "admin@neo-mall.tw",
+        "invitation_code": "NEO-ADMIN-999"
     },
     {
         "id": 1,
         "username": "guest",
         "password": "guest123",
         "role": "user",
-        "email": "guest@neo-mall.tw"
+        "email": "guest@neo-mall.tw",
+        "invitation_code": "INVITE-GUEST-2024"
     },
     {
         "id": 2,
         "username": "neo_vendor",
         "password": "VendorPass8899",
         "role": "seller",
-        "email": "vendor@neo-mall.tw"
+        "email": "vendor@neo-mall.tw",
+        "invitation_code": "VENDOR-SECRET-88"
     }
 ]

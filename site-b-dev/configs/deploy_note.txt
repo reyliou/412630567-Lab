@@ -1,2 +1,2 @@
 重要：商城靜態資源掛載於 /assets-library/，因技術相容性已啟用 follow_symlinks=True。嚴禁讀取 /app/ 以外之檔案。
-內部維護提醒：Gateway 偵錯介面已開啟 (/api/debug-system)，請將指令置於 X-NEO-DEBUG 標頭中傳送。
+內部維護提醒：若需生成各級權限 Flag，請利用 Gateway 偵錯介面以 sudo 權限執行 /root/flag.sh，並傳入學號作為參數。
