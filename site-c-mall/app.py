@@ -161,7 +161,22 @@ async def login_api(request):
         return web.json_response({"success": True, "role": session["role"]})
     return web.json_response({"success": False, "message": "帳號或密碼錯誤"}, status=401)
 
+# 速率限制存儲 (簡單實作)
+REGISTRATION_COOLDOWN = {}
+
 async def register_api(request):
+    # 簡單速率限制：每個 IP 每 30 秒只能嘗試一次註冊 (防止暴力破解邀請碼)
+    peername = request.transport.get_extra_info('peername')
+    if peername:
+        client_ip = peername[0]
+        import time
+        now = time.time()
+        if client_ip in REGISTRATION_COOLDOWN:
+            last_time = REGISTRATION_COOLDOWN[client_ip]
+            if now - last_time < 30:
+                return web.json_response({"success": False, "message": "請求過於頻繁，請於 30 秒後再試"}, status=429)
+        REGISTRATION_COOLDOWN[client_ip] = now
+
     try:
         data = await request.json()
     except:
