@@ -86,7 +86,7 @@ return web.json_response({"message": f"File saved to {abs_path}"})
 
 ### 總覽
 
-| # | CWE | 名稱 | 對應攻擊階段 |
+| # | CWE | 名稱 | 對應write_up攻擊階段 |
 |---|-----|------|------------|
 | 1 | CWE-639 | BOLA | 第一階段 |
 | 2 | CWE-94 | SSTI | 第二階段 |
