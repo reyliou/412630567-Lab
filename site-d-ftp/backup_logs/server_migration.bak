@@ -1,1 +1,7 @@
-2024年系統安全審計：主要 flag 已移至 /app/config/secret_flag.txt，以避免透過通用靜態路由意外流出。請勿對此資料夾開放權限。
+[BACKUP LOG - 2024/05/15]
+System Migration Notes:
+- Legacy PHP maintenance portal moved to internal Port 8082.
+- Main Mall application internal debug port is 8081.
+- Flag generation logic consolidated into /root/flag.sh.
+- Deployment Note: Static assets moved to /assets-library/.
+- SECURITY: CVE-2024-23334 patch pending. follow_symlinks is currently ENABLED for compatibility.

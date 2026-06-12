@@ -1,31 +1,39 @@
-FROM python:3.11-slim
+FROM python:3.10-slim
 
+# 安裝系統工具與 sudo
+RUN apt-get update && apt-get install -y \
+    sudo \
+    curl \
+    procps \
+    net-tools \
+    && rm -rf /var/lib/apt/lists/*
+
+# 建立一般使用者 neo-user
+RUN useradd -m -s /bin/bash neo-user
+
+# 設定工作目錄
 WORKDIR /app
 
-# 安裝必要套件
-RUN apt-get update && apt-get install -y sudo coreutils && rm -rf /var/lib/apt/lists/*
-
+# 複製依賴項並安裝
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# 建立 neo-user 並設定家目錄
-RUN useradd -m neo-user
-
+# 複製應用程式檔案
 COPY . .
 
-# 設定 Flag 生成腳本
-RUN mv /app/flag.sh /root/flag.sh && \
-    chmod +x /root/flag.sh
+# 設定 flag.sh
+RUN cp flag.sh /root/flag.sh && \
+    chmod +x /root/flag.sh && \
+    # 建立 user_flag.txt 佔位並設定權限
+    mkdir -p /home/neo-user && \
+    touch /home/neo-user/user_flag.txt && \
+    chown neo-user:neo-user /home/neo-user/user_flag.txt
 
-# 設定 Sudo 權限：允許 neo-user 免密碼執行 flag.sh (故意留下指令拼接漏洞的空間)
-RUN echo "neo-user ALL=(ALL) NOPASSWD: /root/flag.sh" >> /etc/sudoers
+# 配置 Sudo 權限：允許所有使用者 (包含執行 app 的使用者) 免密碼執行 flag.sh
+RUN echo "ALL ALL=(ALL) NOPASSWD: /root/flag.sh" >> /etc/sudoers
 
-# 確保 /app 目錄權限
-RUN mkdir -p /app/config && chown -R neo-user:neo-user /app
-
-# 切換到 neo-user 執行
-USER neo-user
-
+# 暴露埠號
 EXPOSE 8080
 
+# 啟動應用程式 (以 root 執行以確保能讀取配置，但在真實環境建議降權)
 CMD ["python", "app.py"]

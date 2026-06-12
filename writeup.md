@@ -53,7 +53,7 @@
 *   **滲透技巧**：由於 Port 8080 (Nginx) 網關具有嚴格的 URI 規範化檢查，會攔截 `..` 請求。攻擊者發現系統為了開發者便利，將後端服務直接暴露在 Port 8081 上，繞過了網關安全限制。
 *   **利用方式**：結合前一階段獲得的絕對路徑與 FTP 洩漏的檔名，向 Port 8081 發送惡意請求。
 *   **終極 Payload**：
-    `curl --path-as-is http://localhost:8081/assets-library/../config/secret_flag.txt`
+    `curl --path-as-is http://localhost:8081/assets-library/../../config/secret_flag.txt`
 *   **結果**：成功獲取終極 Flag。
 
 
