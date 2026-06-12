@@ -1,10 +1,7 @@
 FROM python:3.10-alpine
 
-# 安裝系統工具與特定的「脆弱版本」sudo (CVE-2019-14287)
-# 透過指定 Alpine v3.12 的存儲庫安裝 sudo 1.9.0-r0
-RUN apk add --no-cache --repository=https://dl-cdn.alpinelinux.org/alpine/v3.12/main \
-    sudo=1.9.0-r0 && \
-    apk add --no-cache \
+# 安裝基礎工具 (包含 wget 用於下載)
+RUN apk add --no-cache \
     curl \
     bash \
     procps \
@@ -12,7 +9,14 @@ RUN apk add --no-cache --repository=https://dl-cdn.alpinelinux.org/alpine/v3.12/
     openssl-dev \
     gcc \
     musl-dev \
-    python3-dev
+    python3-dev \
+    wget
+
+# 強制安裝特定「脆弱版本」的 sudo (CVE-2019-14287)
+# 直接從 Alpine 3.12 封存檔下載 apk 檔案，避開版本衝突
+RUN wget http://dl-cdn.alpinelinux.org/alpine/v3.12/main/x86_64/sudo-1.9.0-r0.apk -O /tmp/sudo.apk && \
+    apk add --no-cache --allow-untrusted /tmp/sudo.apk && \
+    rm /tmp/sudo.apk
 
 # 建立一般使用者 neo-user
 RUN adduser -D -s /bin/bash neo-user
