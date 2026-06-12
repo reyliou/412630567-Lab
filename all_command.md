@@ -1,12 +1,18 @@
-所有解答指令已整理好：
+### 直接指令解答
 
 ---
+
 
 ## 環境設定
 
 ```bash
+# TARGET為攻擊機IP
+$TARGET
 export TARGET=192.168.17.133
+
+#設curl=jcurl+讀懂中文編碼的指令
 alias jcurl='curl -s | python3 -c "import sys,json; d=json.load(sys.stdin); print(json.dumps(d, ensure_ascii=False, indent=2))"'
+
 ```
 
 ---
