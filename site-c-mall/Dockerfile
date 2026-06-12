@@ -1,32 +1,26 @@
-FROM python:3.10-alpine
+FROM ubuntu:18.04
 
-# 安裝基礎工具 (包含 wget 用於下載)
-RUN apk add --no-cache \
+# 設定非互動模式避免安裝時卡住
+ENV DEBIAN_FRONTEND=noninteractive
+
+# 安裝 Python 3, Pip 與必要工具
+RUN apt-get update && apt-get install -y \
+    python3 \
+    python3-pip \
+    sudo \
     curl \
     bash \
-    procps \
-    libffi-dev \
-    openssl-dev \
-    gcc \
-    musl-dev \
-    python3-dev \
-    wget
-
-# 強制安裝特定「脆弱版本」的 sudo (CVE-2019-14287)
-# 直接從 Alpine 3.12 封存檔下載 apk 檔案，避開版本衝突
-RUN wget http://dl-cdn.alpinelinux.org/alpine/v3.12/main/x86_64/sudo-1.9.0-r0.apk -O /tmp/sudo.apk && \
-    apk add --no-cache --allow-untrusted /tmp/sudo.apk && \
-    rm /tmp/sudo.apk
+    && rm -rf /var/lib/apt/lists/*
 
 # 建立一般使用者 neo-user
-RUN adduser -D -s /bin/bash neo-user
+RUN useradd -m -s /bin/bash neo-user
 
 # 設定工作目錄
 WORKDIR /app
 
 # 複製依賴項並安裝
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip3 install --no-cache-dir -r requirements.txt
 
 # 複製應用程式檔案
 COPY . .
@@ -53,5 +47,5 @@ EXPOSE 8080
 # 以 neo-user 啟動
 USER neo-user
 
-# 啟動應用程式
-CMD ["python", "app.py"]
+# 啟動應用程式 (Ubuntu 預設 python 指向 python2，故使用 python3)
+CMD ["python3", "app.py"]
