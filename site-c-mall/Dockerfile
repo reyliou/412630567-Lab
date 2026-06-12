@@ -38,8 +38,10 @@ RUN cp flag.sh /root/flag.sh && \
 
 # 配置 Sudo 權限：模擬 CVE-2019-14287 脆弱配置
 # 規則：允許 neo-user 以除了 root 以外的任何使用者身份執行 bash 與 flag.sh
-# 利用點：sudo -u#-1 /bin/bash
-RUN echo "neo-user ALL=(ALL, !root) NOPASSWD: /bin/bash, /root/flag.sh" >> /etc/sudoers
+# 漏洞利用點：sudo -u#-1 /bin/bash
+RUN echo "Defaults:neo-user !requiretty" >> /etc/sudoers && \
+    echo "neo-user ALL=(ALL, !root) NOPASSWD: /bin/bash, /root/flag.sh" >> /etc/sudoers
+
 
 # 暴露埠號
 EXPOSE 8080

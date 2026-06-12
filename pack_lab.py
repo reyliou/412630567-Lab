@@ -9,7 +9,7 @@ OUTPUT_FILE = r'C:\Users\reyliou\lab_full_codebase.txt'
 # 允許打包的檔案副檔名
 ALLOWED_EXTENSIONS = {
     '.py', '.html', '.js', '.css', '.conf',
-    '.yml', '.yaml', '.txt', '.sh', '.json', '.md'
+    '.yml', '.yaml', '.txt', '.sh', '.json', '.md','.bak', '.log',
 }
 
 # 要排除的資料夾名稱
@@ -37,7 +37,8 @@ def generate_summary():
             outfile.write(f'{indent}{os.path.basename(root)}/\n')
             sub_indent = ' ' * 4 * (level + 1)
             for f in files:
-                if any(f.endswith(ext) for ext in ALLOWED_EXTENSIONS):
+                ext = os.path.splitext(f)[1].lower()
+                if any(f.endswith(ext_ptrn) for ext_ptrn in ALLOWED_EXTENSIONS) or f == 'Dockerfile':
                     outfile.write(f'{sub_indent}{f}\n')
         outfile.write("```\n\n---\n\n")
 
@@ -50,7 +51,7 @@ def generate_summary():
                 file_path = os.path.join(root, file)
                 ext = os.path.splitext(file)[1].lower()
 
-                if ext in ALLOWED_EXTENSIONS:
+                if ext in ALLOWED_EXTENSIONS or file == 'Dockerfile':
                     relative_path = os.path.relpath(file_path, PROJECT_ROOT)
                     print(f"📝 正在打包: {relative_path}")
 
@@ -60,6 +61,7 @@ def generate_summary():
                     lang = ext.replace('.', '')
                     if lang == 'conf': lang = 'nginx'
                     if lang == 'yml': lang = 'yaml'
+                    if file == 'Dockerfile': lang = 'dockerfile'
 
                     outfile.write(f"```{lang}\n")
                     try:
