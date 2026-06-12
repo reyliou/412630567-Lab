@@ -16,7 +16,7 @@
 ### 第一階段：資訊挖掘與身份偽裝 (Discovery & Registration)
 *   **BOLA**：存取 `/api/products/0` 獲取隱藏線索，發現內部系統指向 `/system-status/`。
 *   **FTP 滲透與憑證破解**：
-    *   從 `/changelog` 的日誌紀錄發現匿名 FTP 服務的存在。
+    *   從 `透過 nmap 掃描發現目標開放 Port 21 (FTP)，嘗試匿名登入成功。
     *   在 FTP 的 `/backup_logs/` 目錄下載 `credentials.bak` 並破解 `guest` 密碼為 `guest123`。
 *   **身份註冊 (關鍵步驟)**：
     *   使用 `guest/guest123` 登入。
