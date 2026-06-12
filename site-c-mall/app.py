@@ -377,7 +377,17 @@ async def seller_upload_api(request):
 
 async def seller_diag_api(request):
     session = await get_session(request)
-    if session.get('role') not in ['seller', 'admin']:
+    
+    # 允許內部網路訪問 (例如來自 Nginx Gateway) 或 已登入的賣家/管理員
+    is_internal = False
+    peername = request.transport.get_extra_info('peername')
+    if peername:
+        client_ip = peername[0]
+        # 簡單判斷是否為 Docker 內網 IP (172.x.x.x, 10.x.x.x, 192.168.x.x) 或 localhost
+        if client_ip.startswith('172.') or client_ip.startswith('10.') or client_ip.startswith('192.168.') or client_ip in ('127.0.0.1', '::1'):
+            is_internal = True
+
+    if not is_internal and session.get('role') not in ['seller', 'admin']:
         return web.json_response({"error": "Forbidden"}, status=403)
     
     try:
