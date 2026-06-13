@@ -243,7 +243,6 @@ curl -H 'X-NEO-DEBUG: ngx.say(io.popen(
 ```
 cve-2024-23334-lab/
 ├── docker-compose.yml          # 五個服務：gateway, status, dev, mall, ftp
-├── pack_lab.py                 # 開發用：打包全專案原始碼成單一文字檔（非題目元件）
 │
 ├── nginx-gateway/
 │   └── nginx.conf              # 反代主入口 + /api/debug-system (Lua RCE 後門)
