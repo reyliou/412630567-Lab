@@ -1,5 +1,4 @@
-# 尼歐計畫 (Project Neo) 
-# NEO-MALL 線上商城 — CTF 題目說明文件
+# 尼歐計畫 (Project Neo)  — CTF 題目說明文件
 
 ---
 
