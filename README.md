@@ -98,7 +98,7 @@ ROOT_FLAG = ROOT_FLAG{ md5("ROOT_<學號>") }
 
 ### 階段 0：偵察
 - `nmap -p 21,8080,8081 -sV $TARGET`
-- 匿名登入 FTP（`anonymous/anonymous`），下載 `backup_logs/credentials.bak`、`server_migration.bak`
+- 匿名登入 FTP（`anonymous`），下載 `backup_logs/credentials.bak`、`server_migration.bak`
   - `credentials.bak`：`guest: FCF41657F02F88137A1BCF068A32C0A3`（MD5，破解後得 `guest123`）
   - `server_migration.bak`：洩漏內部資訊
     - Mall 內部除錯 Port 為 8081
