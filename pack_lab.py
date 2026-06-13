@@ -9,7 +9,7 @@ OUTPUT_FILE = r'C:\Users\reyliou\lab_full_codebase.txt'
 # 允許打包的檔案副檔名
 ALLOWED_EXTENSIONS = {
     '.py', '.html', '.js', '.css', '.conf',
-    '.yml', '.yaml', '.txt', '.sh', '.json', '.md','.bak', '.log',
+    '.yml', '.yaml', '.txt', '.sh', '.json','.bak', '.log',
 }
 
 # 要排除的資料夾名稱
